@@ -17,6 +17,7 @@
 		"test": "xo && ava"
 	},
 	"files": [
+		"index.js",
 		"cli.js"
 	],
 	"keywords": [
@@ -24,6 +25,9 @@
 		"cli"
 	],
 	"dependencies": {
+		"chalk": "^2.4.2",
+		"child_process": "^1.0.2",
+		"gh-got": "^8.1.0",
 		"meow": "^5.0.0"
 	},
 	"devDependencies": {
