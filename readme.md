@@ -11,17 +11,20 @@ $ npm install --global stargazed
 ## CLI
 
 ```
-$ stargazed --help
+$ stargazed [OPTIONS]
 
-  Usage
-    stargazed [input]
+    GitHub stargazed
 
-  Options
-    --foo  Lorem ipsum [Default: false]
+    Creating your own Awesome List of GitHub Stars!
 
-  Examples
-    $ stargazed
-    unicorns & rainbows
-    $ stargazed ponies
-    ponies & rainbows
+    example:     stargazed --username abhijithvijayan --sort > README.md
+
+  Options:
+    -u, --username TEXT    GitHub username
+    -t, --token TEXT       GitHub token
+    -s, --sort             sort by language
+    -r, --repo TEXT  repository name
+    -m, --message TEXT     commit message
+    -v, --version          Show the version and exit.
+    -h, --help             Show this message and exit.
 ```

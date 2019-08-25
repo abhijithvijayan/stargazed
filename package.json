@@ -28,7 +28,9 @@
 		"chalk": "^2.4.2",
 		"child_process": "^1.0.2",
 		"gh-got": "^8.1.0",
-		"meow": "^5.0.0"
+		"meow": "^5.0.0",
+		"validate.io-object": "^1.0.4",
+		"validate.io-string-primitive": "^1.0.1"
 	},
 	"devDependencies": {
 		"ava": "^2.3.0",

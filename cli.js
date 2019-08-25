@@ -5,19 +5,19 @@ const meow = require('meow');
 const stargazed = require('./');
 
 const cli = meow(`
-		Usage: starred [OPTIONS]
+		Usage: stargazed [OPTIONS]
 
 			GitHub stargazed
 
 			Creating your own Awesome List of GitHub Stars!
 
-			example:     starred --username abhijithvijayan --sort > README.md
+			example:  stargazed --username abhijithvijayan --sort > README.md
 
 		Options:
 			-u, --username TEXT    GitHub username
 			-t, --token TEXT       GitHub token
 			-s, --sort             sort by language
-			-r, --repo TEXT  repository name
+			-r, --repo TEXT  			 repository name
 			-m, --message TEXT     commit message
 			-v, --version          Show the version and exit.
 			-h, --help             Show this message and exit.
