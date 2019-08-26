@@ -24,14 +24,15 @@ const cli = meow(`
 	`, {
 		flags: {
 			boolean: [
-				'sort'
+				'sort',
+				'version',
+				'help'
 			],
 			string: [
 				'username',
 				'token',
 				'repo',
 				'message',
-				'version'
 			],
 			alias: {
 				u: 'username',

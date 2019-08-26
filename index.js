@@ -4,6 +4,7 @@ const ghGot = require('gh-got');
 const chalk = require("chalk");
 const isObject = require('validate.io-object');
 const isString = require('validate.io-string-primitive');
+const isBoolean = require('validate.io-boolean-primitive');
 
 let options = {};
 
@@ -33,6 +34,24 @@ function validate(_options) {
     options.message = _options.message || _options.m;
     if (!isString(options.message)) {
       return new TypeError('invalid option. Commit message must be a string primitive. Option: `' + options.message + '`.');
+    }
+  }
+  if(_options.hasOwnProperty('sort') || _options.hasOwnProperty('s')) {
+    options.sort = _options.sort || _options.s;
+    if (!isBoolean(options.sort)) {
+      return new TypeError('invalid option. Sort option must be a boolean primitive. Option: `' + options.sort + '`.');
+    }
+  }
+  if (_options.hasOwnProperty('version') || _options.hasOwnProperty('v')) {
+    options.version = _options.version || _options.v;
+    if (!isBoolean(options.version)) {
+      return new TypeError('invalid option. Version option must be a boolean primitive. Option: `' + options.version + '`.');
+    }
+  }
+  if (_options.hasOwnProperty('help') || _options.hasOwnProperty('h')) {
+    options.help = _options.help || _options.h;
+    if (!isBoolean(options.help)) {
+      return new TypeError('invalid option. Help option must be a boolean primitive. Option: `' + options.help + '`.');
     }
   }
   return null;

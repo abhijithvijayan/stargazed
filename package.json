@@ -30,6 +30,7 @@
 		"gh-got": "^8.1.0",
 		"meow": "^5.0.0",
 		"ora": "^3.4.0",
+		"validate.io-boolean-primitive": "^1.0.0",
 		"validate.io-object": "^1.0.4",
 		"validate.io-string-primitive": "^1.0.1"
 	},
