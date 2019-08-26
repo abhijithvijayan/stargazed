@@ -2,6 +2,9 @@
 
 > Creating your own Awesome List of GitHub Stars!
 
+### WIP
+
+<!--
 ## Install
 
 ```
@@ -27,4 +30,4 @@ $ stargazed [OPTIONS]
     -m, --message TEXT     commit message
     -v, --version          Show the version and exit.
     -h, --help             Show this message and exit.
-```
+``` -->
