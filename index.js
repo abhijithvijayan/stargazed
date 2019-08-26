@@ -57,12 +57,13 @@ function validate(_options) {
   return null;
 }
 
-function flashValidationError(message) {
-  console.error(chalk.bold.red(`✖ ${message}`));
-  process.exit(1);
-}
 
 module.exports = (_options) => {
+  
+  function flashValidationError(message) {
+    console.error(chalk.bold.red(`✖ ${message}`));
+    process.exit(1);
+  }
 
   const err = validate(_options);
   if (err) {
@@ -70,16 +71,29 @@ module.exports = (_options) => {
     return;
   }
 
+  const htmlEscapeTable = {
+    ">": "&gt;",
+    "<": "&lt;",
+  };
+
+  String.prototype.htmlEscape = function() {
+    let escStr = this;
+    for (let x in htmlEscapeTable) {
+      escStr = escStr.replace(new RegExp(x, 'g'), htmlEscapeTable[x]);
+    }
+    return escStr;
+  };
+
   console.log(options);
 
   const { username } = options;
   const url = `users/${username}/starred`;
 
   (async () => {
-    let response = [];
+    let responseObj = {};
 
     try {
-      response = await ghGot(url, _options);
+      responseObj = await ghGot(url, _options);
     } catch(err) {
       console.warn(
         chalk.bold.green(`Error while fetching data!`)
@@ -87,14 +101,25 @@ module.exports = (_options) => {
       return;
     }
 
-    if (!response.length) {
+    if (!Object.keys(responseObj).length) {
       console.warn(
         chalk.bold.green(`Fetch complete!`)
       );
     }
 
-      // console.log(response);
+    const { body } = responseObj;
 
-      return response;
+    if (Array.isArray(body)) {
+      body.map((item, index) => {
+        let { language, description } = item;
+        language = language || 'Others';
+        description = description ? description.htmlEscape().replace('\n', '') : '';
+        return;
+      }) 
+    }
+    
+    // console.log(responseObj);
+
+    return responseObj;
   })(); 
 };
