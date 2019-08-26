@@ -60,12 +60,16 @@ function validate(_options) {
 
 module.exports = (_options) => {
   
+  /**
+   *  Display Validation Errors
+   */
   function flashValidationError(message) {
     console.error(chalk.bold.red(`✖ ${message}`));
     process.exit(1);
   }
 
   const err = validate(_options);
+
   if (err) {
     flashValidationError(err);
     return;
@@ -76,6 +80,9 @@ module.exports = (_options) => {
     "<": "&lt;",
   };
 
+  /**
+   *  Replace special characters with escape code
+   */
   String.prototype.htmlEscape = function() {
     let escStr = this;
     for (let x in htmlEscapeTable) {
@@ -84,6 +91,15 @@ module.exports = (_options) => {
     return escStr;
   };
 
+  /**
+   *  Trim whitespaces
+   */
+  if (typeof (String.prototype.trim) === "undefined") {
+    String.prototype.trim = function () {
+      return String(this).replace(/^\s+|\s+$/g, '');
+    };
+  }
+
   console.log(options);
 
   const { username } = options;
@@ -91,7 +107,7 @@ module.exports = (_options) => {
 
   (async () => {
     let responseObj = {};
-
+    let stargazed = {};
     try {
       responseObj = await ghGot(url, _options);
     } catch(err) {
@@ -111,12 +127,18 @@ module.exports = (_options) => {
 
     if (Array.isArray(body)) {
       body.map((item, index) => {
-        let { language, description } = item;
+        let { name, description, html_url, language  } = item;
         language = language || 'Others';
         description = description ? description.htmlEscape().replace('\n', '') : '';
+        if (!(language in stargazed)) {
+          stargazed[language] = [];
+        }
+        stargazed[language].push([name, html_url, description.trim()])
         return;
       }) 
     }
+
+    console.log(stargazed);
     
     // console.log(responseObj);
 
