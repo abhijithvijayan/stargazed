@@ -16,7 +16,10 @@ const validate = _options => {
 	if (!isObject(_options)) {
 		return new TypeError(`invalid input argument. Options argument must be an object. Value: \`${_options}\`.`);
 	}
-	if (_options.hasOwnProperty('username') || _options.hasOwnProperty('u')) {
+	if (
+		Object.prototype.hasOwnProperty.call(_options, 'username') ||
+		Object.prototype.hasOwnProperty.call(_options, 'u')
+	) {
 		options.username = _options.username || _options.u;
 		if (!isString(options.username)) {
 			return new TypeError(
@@ -24,19 +27,25 @@ const validate = _options => {
 			);
 		}
 	}
-	if (_options.hasOwnProperty('token') || _options.hasOwnProperty('t')) {
+	if (
+		Object.prototype.hasOwnProperty.call(_options, 'token') ||
+		Object.prototype.hasOwnProperty.call(_options, 't')
+	) {
 		options.token = _options.token || _options.t;
 		if (!isString(options.token)) {
 			return new TypeError(`invalid option. Token must be a string primitive. Option: \`${options.token}\`.`);
 		}
 	}
-	if (_options.hasOwnProperty('repo') || _options.hasOwnProperty('r')) {
+	if (Object.prototype.hasOwnProperty.call(_options, 'repo') || Object.prototype.hasOwnProperty.call(_options, 'r')) {
 		options.repo = _options.repo || _options.r;
 		if (!isString(options.repo)) {
 			return new TypeError(`invalid option. Repo name must be a string primitive. Option: \`${options.repo}\`.`);
 		}
 	}
-	if (_options.hasOwnProperty('message') || _options.hasOwnProperty('m')) {
+	if (
+		Object.prototype.hasOwnProperty.call(_options, 'message') ||
+		Object.prototype.hasOwnProperty.call(_options, 'm')
+	) {
 		options.message = _options.message || _options.m;
 		if (!isString(options.message)) {
 			return new TypeError(
@@ -44,7 +53,7 @@ const validate = _options => {
 			);
 		}
 	}
-	if (_options.hasOwnProperty('sort') || _options.hasOwnProperty('s')) {
+	if (Object.prototype.hasOwnProperty.call(_options, 'sort') || Object.prototype.hasOwnProperty.call(_options, 's')) {
 		options.sort = _options.sort || _options.s;
 		if (!isBoolean(options.sort)) {
 			return new TypeError(
@@ -52,7 +61,10 @@ const validate = _options => {
 			);
 		}
 	}
-	if (_options.hasOwnProperty('version') || _options.hasOwnProperty('v')) {
+	if (
+		Object.prototype.hasOwnProperty.call(_options, 'version') ||
+		Object.prototype.hasOwnProperty.call(_options, 'v')
+	) {
 		options.version = _options.version || _options.v;
 		if (!isBoolean(options.version)) {
 			return new TypeError(
@@ -60,7 +72,7 @@ const validate = _options => {
 			);
 		}
 	}
-	if (_options.hasOwnProperty('help') || _options.hasOwnProperty('h')) {
+	if (Object.prototype.hasOwnProperty.call(_options, 'help') || Object.prototype.hasOwnProperty.call(_options, 'h')) {
 		options.help = _options.help || _options.h;
 		if (!isBoolean(options.help)) {
 			return new TypeError(
