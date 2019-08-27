@@ -3,6 +3,7 @@
 const ora = require('ora');
 const fs = require('fs');
 const ejs = require('ejs');
+const path = require('path');
 const ghGot = require('gh-got');
 const chalk = require("chalk");
 const { promisify } = require('util');
@@ -89,11 +90,14 @@ String.prototype.htmlEscape = function() {
   return escStr;
 };
 
+/** 
+ *  Read the template from markdown file
+ */
 const getReadmeTemplate = async () => {
   const spinner = ora('Loading README template').start();
 
   try {
-    const template = await promisify(fs.readFile)('template.md', 'utf8');
+    const template = await promisify(fs.readFile)(path.resolve(__dirname, './template.md'), 'utf8'); 
     spinner.succeed('README template loaded');
     return template;
   } catch (err) {
@@ -102,14 +106,19 @@ const getReadmeTemplate = async () => {
   }
 }
 
+/**
+ *  Render out readme content
+ */
 const buildReadmeContent = async (context) => {
   const template = await getReadmeTemplate();
-  // console.log(context);
   return ejs.render(template, {
     ...context
   })
 }
 
+/** 
+ *  Write content to README.md
+ */
 const writeReadmeContent = async (readmeContent) => {
   const spinner = ora('Creating README').start()
 
