@@ -1,8 +1,9 @@
-# stargazed [![Build Status](https://travis-ci.com/abhijithvijayan/stargazed.svg?branch=master)](https://travis-ci.com/abhijithvijayan/stargazed)
+# stargazed
+
+[![Build Status](https://travis-ci.com/abhijithvijayan/stargazed.svg?branch=master)](https://travis-ci.com/abhijithvijayan/stargazed)
+[![npm version](https://img.shields.io/npm/v/stargazed)](https://www.npmjs.com/package/stargazed)
 
 > Creating your own Awesome List of GitHub Stars!
-
-WIP
 
 ## Install
 
@@ -30,3 +31,7 @@ $ stargazed [OPTIONS]
     -v, --version          Show the version and exit.
     -h, --help             Show this message and exit.
 ```
+
+## License
+
+MIT © [Abhijith Vijayan](https://abhijithvijayan.in)
