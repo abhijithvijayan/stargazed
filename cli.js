@@ -1,10 +1,10 @@
 #!/usr/bin/env node
-'use strict';
 
 const meow = require('meow');
 const stargazed = require('./');
 
-const cli = meow(`
+const cli = meow(
+	`
 		Usage: stargazed [OPTIONS]
 
 			GitHub stargazed
@@ -21,19 +21,11 @@ const cli = meow(`
 			-m, --message TEXT     commit message
 			-v, --version          Show the version and exit.
 			-h, --help             Show this message and exit.
-	`, {
+	`,
+	{
 		flags: {
-			boolean: [
-				'sort',
-				'version',
-				'help'
-			],
-			string: [
-				'username',
-				'token',
-				'repo',
-				'message',
-			],
+			boolean: ['sort', 'version', 'help'],
+			string: ['username', 'token', 'repo', 'message'],
 			alias: {
 				u: 'username',
 				t: 'token',
@@ -41,9 +33,10 @@ const cli = meow(`
 				r: 'repo',
 				m: 'message',
 				v: 'version',
-				h: 'help'
-			}
-		}
-});
+				h: 'help',
+			},
+		},
+	}
+);
 
 stargazed(cli.flags);
