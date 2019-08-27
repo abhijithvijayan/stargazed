@@ -184,7 +184,8 @@ module.exports = async _options => {
 
 	let page = 1;
 	let list = [];
-	const stargazed = {};
+	const unordered = {};
+	const ordered = {};
 
 	const spinner = ora('Fetching stargazed repositories...').start();
 
@@ -215,37 +216,41 @@ module.exports = async _options => {
 		spinner.succeed(`Fetched ${Object.keys(list).length} items`);
 		spinner.stop();
 
-		return list;
+		return { list };
 	};
 
 	// Calling function
-	const responseBody = await loop();
+	({ list } = await loop());
 
 	/**
 	 *  Parse and save object
 	 */
-	if (Array.isArray(responseBody)) {
-		responseBody.map(item => {
+	if (Array.isArray(list)) {
+		list.map(item => {
 			let { name, description, html_url, language } = item;
 			language = language || 'Others';
 			description = description ? description.htmlEscape().replace('\n', '') : '';
-			if (!(language in stargazed)) {
-				stargazed[language] = [];
+			if (!(language in unordered)) {
+				unordered[language] = [];
 			}
-			stargazed[language].push([name, html_url, description.trim()]);
+			unordered[language].push([name, html_url, description.trim()]);
 			return null;
 		});
 	}
 
 	if (sort) {
-		// ToDo: Sort the object
+		Object.keys(unordered)
+			.sort()
+			.forEach(function(key) {
+				ordered[key] = unordered[key];
+			});
 	}
 
 	/**
 	 *  Generate Language Index
 	 */
-	const languages = Object.keys(stargazed);
-	const readmeContent = await buildReadmeContent({ languages, username, stargazed });
+	const languages = Object.keys(sort ? ordered : unordered);
+	const readmeContent = await buildReadmeContent({ languages, username, stargazed: sort ? ordered : unordered });
 
 	/**
 	 *  Write Readme Content
