@@ -2,9 +2,8 @@
 
 > Creating your own Awesome List of GitHub Stars!
 
-### WIP
+WIP
 
-<!--
 ## Install
 
 ```
@@ -20,14 +19,14 @@ $ stargazed [OPTIONS]
 
     Creating your own Awesome List of GitHub Stars!
 
-    example:     stargazed --username abhijithvijayan --sort > README.md
+    example: stargazed --username abhijithvijayan --sort
 
   Options:
     -u, --username TEXT    GitHub username
     -t, --token TEXT       GitHub token
     -s, --sort             sort by language
-    -r, --repo TEXT  repository name
+    -r, --repo TEXT        repository name
     -m, --message TEXT     commit message
     -v, --version          Show the version and exit.
     -h, --help             Show this message and exit.
-``` -->
+```

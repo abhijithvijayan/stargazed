@@ -140,16 +140,14 @@ module.exports = (_options) => {
     };
   }
 
-  // console.log(options);
-
   const { username, sort } = options;
   const url = `users/${username}/starred`;
 
   (async () => {
-    let responseObj = {};
+    let response = {};
     let stargazed = {};
     try {
-      responseObj = await ghGot(url, _options);
+      response = await ghGot(url, _options);
     } catch(err) {
       console.warn(
         chalk.bold.green(`Error while fetching data!`)
@@ -157,13 +155,13 @@ module.exports = (_options) => {
       return;
     }
 
-    if (!Object.keys(responseObj).length) {
+    if (!Object.keys(response).length) {
       console.warn(
         chalk.bold.green(`Fetch complete!`)
       );
     }
 
-    const { body } = responseObj;
+    const { body } = response;
 
     /** 
      *  Parse and save object
@@ -182,21 +180,18 @@ module.exports = (_options) => {
     }
 
     if (sort) {
-      // Sort the object
+      // ToDo: Sort the object
     }
-
-    // console.log(stargazed);
 
     /**
      *  Generate Language Index
      */
     let languages = Object.keys(stargazed);
-    const readmeContent = await buildReadmeContent({ languages, username })
+    const readmeContent = await buildReadmeContent({ languages, username, stargazed })
 
     /** 
      *  Write Readme Content
      */
     await writeReadmeContent(readmeContent);
-    // console.log(responseObj);
   })(); 
 };
