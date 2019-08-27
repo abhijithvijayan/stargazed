@@ -104,9 +104,9 @@ const htmlEscapeTable = {
  */
 String.prototype.htmlEscape = function() {
 	let escStr = this;
-	for (const x in htmlEscapeTable) {
-		escStr = escStr.replace(new RegExp(x, 'g'), htmlEscapeTable[x]);
-	}
+	Object.entries(htmlEscapeTable).map(([key, value]) => {
+		return (escStr = escStr.replace(new RegExp(key, 'g'), value));
+	});
 	return escStr;
 };
 
@@ -191,7 +191,7 @@ module.exports = _options => {
 		 *  Parse and save object
 		 */
 		if (Array.isArray(body)) {
-			body.map((item, index) => {
+			body.map(item => {
 				let { name, description, html_url, language } = item;
 				language = language || 'Others';
 				description = description ? description.htmlEscape().replace('\n', '') : '';
@@ -199,6 +199,7 @@ module.exports = _options => {
 					stargazed[language] = [];
 				}
 				stargazed[language].push([name, html_url, description.trim()]);
+				return null;
 			});
 		}
 
