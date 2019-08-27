@@ -30,7 +30,6 @@ const validate = _options => {
 		Object.prototype.hasOwnProperty.call(_options, 't')
 	) {
 		options.token = _options.token || _options.t;
-		console.log(options.token);
 		if (!isString(options.token)) {
 			return new TypeError(`invalid option. Token must be a string primitive.`);
 		}
@@ -183,9 +182,9 @@ module.exports = async _options => {
 		};
 	}
 
+	let page = 1;
 	let list = [];
 	const stargazed = {};
-	let page = 1;
 
 	const spinner = ora('Fetching stargazed repositories...').start();
 

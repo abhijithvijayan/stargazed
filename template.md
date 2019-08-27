@@ -5,7 +5,7 @@
 <% if (languages && languages.length) { -%>
 ## 🏠 Contents
 <% languages.map((item) => { -%>
-- [<%= item %>](#<%= item.toLowerCase() %>)
+- [<%= item.replace(" ", "&nbsp;") %>](#<%= item.toLowerCase().replace(" ", "&nbsp;") %>)
 <% }) -%>
 <% Object.entries(stargazed).map(([key, value]) => { -%>
 
@@ -22,3 +22,4 @@
 <% if (username) { -%>
 To the extent possible under law, [<%= username %>](https://github.com/<%= username %>) has waived all copyright and related or neighboring rights to this work.
 <% } -%>
+
