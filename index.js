@@ -142,7 +142,7 @@ const writeReadmeContent = async readmeContent => {
 	spinner.stop();
 };
 
-module.exports = _options => {
+module.exports = async _options => {
 	const err = validate(_options);
 
 	if (err) {
@@ -150,7 +150,7 @@ module.exports = _options => {
 		return;
 	}
 
-	const { username, sort, help, version } = options;
+	const { username, sort, help, version, token, repo } = options;
 
 	if (help) {
 		// ToDo: Show the commands
@@ -167,6 +167,12 @@ module.exports = _options => {
 		return;
 	}
 
+	if (repo) {
+		if (!token) {
+			flashError('Error: creating repository needs token. Set --token');
+		}
+	}
+
 	/**
 	 *  Trim whitespaces
 	 */
@@ -176,55 +182,73 @@ module.exports = _options => {
 		};
 	}
 
-	const url = `users/${username}/starred`;
+	let list = [];
+	const stargazed = {};
+	let page = 1;
 
-	(async () => {
-		let response = {};
-		const stargazed = {};
-		const spinner = ora('Fetching repositories').start();
+	const spinner = ora('Fetching stargazed repositories...').start();
+
+	const loop = async () => {
+		let response;
+		const url = `users/${username}/starred?&per_page=100&page=${page}`;
 
 		try {
 			response = await ghGot(url, _options);
-			spinner.succeed('Data fetch successfully completed!');
 		} catch (err) {
 			spinner.fail('Error while fetching data!');
 			flashError(err);
 			return;
 		}
 
+		const { body, headers } = response;
+
+		// Concatenate to existing data
+		list = list.concat(body);
+
+		// GitHub returns `last` for the last page
+		if (headers.link && headers.link.includes('next')) {
+			page += 1;
+			return loop();
+		}
+
+		spinner.succeed('Data fetch successfully completed!');
+		spinner.succeed(`Fetched ${Object.keys(list).length} items`);
 		spinner.stop();
 
-		const { body } = response;
+		return list;
+	};
 
-		/**
-		 *  Parse and save object
-		 */
-		if (Array.isArray(body)) {
-			body.map(item => {
-				let { name, description, html_url, language } = item;
-				language = language || 'Others';
-				description = description ? description.htmlEscape().replace('\n', '') : '';
-				if (!(language in stargazed)) {
-					stargazed[language] = [];
-				}
-				stargazed[language].push([name, html_url, description.trim()]);
-				return null;
-			});
-		}
+	// Calling function
+	const responseBody = await loop();
 
-		if (sort) {
-			// ToDo: Sort the object
-		}
+	/**
+	 *  Parse and save object
+	 */
+	if (Array.isArray(responseBody)) {
+		responseBody.map(item => {
+			let { name, description, html_url, language } = item;
+			language = language || 'Others';
+			description = description ? description.htmlEscape().replace('\n', '') : '';
+			if (!(language in stargazed)) {
+				stargazed[language] = [];
+			}
+			stargazed[language].push([name, html_url, description.trim()]);
+			return null;
+		});
+	}
 
-		/**
-		 *  Generate Language Index
-		 */
-		const languages = Object.keys(stargazed);
-		const readmeContent = await buildReadmeContent({ languages, username, stargazed });
+	if (sort) {
+		// ToDo: Sort the object
+	}
 
-		/**
-		 *  Write Readme Content
-		 */
-		await writeReadmeContent(readmeContent);
-	})();
+	/**
+	 *  Generate Language Index
+	 */
+	const languages = Object.keys(stargazed);
+	const readmeContent = await buildReadmeContent({ languages, username, stargazed });
+
+	/**
+	 *  Write Readme Content
+	 */
+	await writeReadmeContent(readmeContent);
 };
