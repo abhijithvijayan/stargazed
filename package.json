@@ -27,7 +27,9 @@
 	"dependencies": {
 		"chalk": "^2.4.2",
 		"child_process": "^1.0.2",
+		"ejs": "^2.6.2",
 		"gh-got": "^8.1.0",
+		"lodash.unescape": "^4.0.1",
 		"meow": "^5.0.0",
 		"ora": "^3.4.0",
 		"validate.io-boolean-primitive": "^1.0.0",

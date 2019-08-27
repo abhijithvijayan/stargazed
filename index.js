@@ -1,8 +1,12 @@
 'use strict';
 
 const ora = require('ora');
+const fs = require('fs');
+const ejs = require('ejs');
 const ghGot = require('gh-got');
 const chalk = require("chalk");
+const { promisify } = require('util');
+const unescape = require('lodash.unescape');
 const isObject = require('validate.io-object');
 const isString = require('validate.io-string-primitive');
 const isBoolean = require('validate.io-boolean-primitive');
@@ -76,7 +80,7 @@ const validate = (_options) => {
 /**
  *  Display Validation Errors
  */
-const flashValidationError = (message) => {
+const flashError = (message) => {
   console.error(chalk.bold.red(`✖ ${message}`));
   process.exit(1);
 }
@@ -101,12 +105,38 @@ String.prototype.htmlEscape = function() {
   return escStr;
 };
 
+
+let indexTemplate = `
+<% languages.map((item) => { -%>
+  - [<%= item %>](#<%= item.toLowerCase() %>) 
+<% }) -%>
+`;
+
+const buildReadmeContent = async (context) => {
+  // console.log(context);
+  return ejs.render(indexTemplate, {
+    ...context
+  })
+}
+
+const writeReadmeContent = async (readmeContent) => {
+  const spinner = ora('Creating README').start()
+
+  try {
+    await promisify(fs.writeFile)('README.md', unescape(readmeContent));
+    spinner.succeed('README created');
+  } catch (err) {
+    spinner.fail('README creation fail');
+    flashError(err);
+  }
+}
+
 module.exports = (_options) => {
 
   const err = validate(_options);
 
   if (err) {
-    flashValidationError(err);
+    flashError(err);
     return;
   }
 
@@ -169,13 +199,13 @@ module.exports = (_options) => {
     /**
      *  Generate Language Index
      */
-    Object.keys(stargazed).map(lang => {
-      console.log(lang);
-    })
+    let languages = Object.keys(stargazed);
+    const readmeContent = await buildReadmeContent({ languages })
 
-
+    /** 
+     *  Write Readme Content
+     */
+    await writeReadmeContent(readmeContent);
     // console.log(responseObj);
-
-    return responseObj;
   })(); 
 };
