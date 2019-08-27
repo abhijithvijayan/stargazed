@@ -30,6 +30,7 @@ const validate = _options => {
 		Object.prototype.hasOwnProperty.call(_options, 't')
 	) {
 		options.token = _options.token || _options.t;
+		console.log(options.token);
 		if (!isString(options.token)) {
 			return new TypeError(`invalid option. Token must be a string primitive.`);
 		}
@@ -150,7 +151,7 @@ module.exports = async _options => {
 		return;
 	}
 
-	const { username, sort, help, version, token, repo } = options;
+	const { username, sort, help, version, token = '', repo } = options;
 
 	if (help) {
 		// ToDo: Show the commands
@@ -193,7 +194,7 @@ module.exports = async _options => {
 		const url = `users/${username}/starred?&per_page=100&page=${page}`;
 
 		try {
-			response = await ghGot(url, _options);
+			response = await ghGot(url, { token });
 		} catch (err) {
 			spinner.fail('Error while fetching data!');
 			flashError(err);
