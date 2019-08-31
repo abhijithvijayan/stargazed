@@ -5,6 +5,8 @@
 
 > Creating your own Awesome List of GitHub Stars!
 
+[![NPM](https://nodei.co/npm/stargazed.png?downloads=true&stars=true)](https://nodei.co/npm/stargazed/)
+
 ## Install
 
 Ensure you have [Node.js](https://nodejs.org) 8 or later installed. Then run the following:
@@ -24,7 +26,7 @@ $ stargazed --help
     -u, --username TEXT    GitHub username
     -t, --token TEXT       GitHub token
     -s, --sort             sort by language
-    -r, --repo TEXT  			 repository name
+    -r, --repo TEXT  	   repository name
     -m, --message TEXT     commit message
     -v, --version          Show the version and exit with code 0
 
