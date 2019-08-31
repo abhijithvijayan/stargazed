@@ -66,12 +66,6 @@ const validate = _options => {
 			return new TypeError(`invalid option. Version option must be a boolean primitive.`);
 		}
 	}
-	if (Object.prototype.hasOwnProperty.call(_options, 'help') || Object.prototype.hasOwnProperty.call(_options, 'h')) {
-		options.help = _options.help || _options.h;
-		if (!isBoolean(options.help)) {
-			return new TypeError(`invalid option. Help option must be a boolean primitive.`);
-		}
-	}
 	return null;
 };
 
@@ -152,14 +146,9 @@ module.exports = async _options => {
 		return;
 	}
 
-	const { username, token = '', sort, repo, message, version, help } = options;
+	const { username, token = '', sort, repo, message, version } = options;
 
 	let gitStatus = false;
-
-	if (help) {
-		// ToDo: Show the commands
-		return;
-	}
 
 	if (version) {
 		console.log(chalk.bold.green(pkg.version));

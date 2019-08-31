@@ -7,36 +7,32 @@
 
 ## Install
 
+Ensure you have [Node.js](https://nodejs.org) 8 or later installed. Then run the following:
+
 ```
 $ npm install --global stargazed
 ```
 
-## CLI
+## Usage
 
 ```
-$ stargazed [OPTIONS]
+$ stargazed --help
 
-    GitHub stargazed
+  Creating your own Awesome List of GitHub Stars!
 
-    Creating your own Awesome List of GitHub Stars!
-
-    example: stargazed --username abhijithvijayan --sort
-
-  Options:
+  Options
     -u, --username TEXT    GitHub username
     -t, --token TEXT       GitHub token
     -s, --sort             sort by language
-    -r, --repo TEXT        repository name
+    -r, --repo TEXT  			 repository name
     -m, --message TEXT     commit message
-    -v, --version          Show the version and exit.
-    -h, --help             Show this message and exit.
+    -v, --version          Show the version and exit with code 0
+
+  Examples
+    $ stargazed --username abhijithvijayan --token "GITHUB-TOKEN" --sort
 ```
 
 ## Demo
-
-```
-  $ stargazed --username yourname --repo awesome-stars --token sample-token --sort
-```
 
 - [awesome-stars](https://github.com/abhijithvijayan/awesome-stars)
 
