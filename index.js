@@ -10,6 +10,8 @@ const isObject = require('validate.io-object');
 const isString = require('validate.io-string-primitive');
 const isBoolean = require('validate.io-boolean-primitive');
 
+const pkg = require('./package.json');
+
 const options = {};
 
 const validate = _options => {
@@ -150,7 +152,9 @@ module.exports = async _options => {
 		return;
 	}
 
-	const { username, sort, help, version, token = '', repo } = options;
+	const { username, token = '', sort, repo, message, version, help } = options;
+
+	let gitStatus = false;
 
 	if (help) {
 		// ToDo: Show the commands
@@ -158,7 +162,7 @@ module.exports = async _options => {
 	}
 
 	if (version) {
-		// ToDo: Show the version info
+		console.log(chalk.bold.green(pkg.version));
 		return;
 	}
 
@@ -170,7 +174,9 @@ module.exports = async _options => {
 	if (repo) {
 		if (!token) {
 			flashError('Error: creating repository needs token. Set --token');
+			return;
 		}
+		gitStatus = true;
 	}
 
 	/**
@@ -256,4 +262,8 @@ module.exports = async _options => {
 	 *  Write Readme Content
 	 */
 	await writeReadmeContent(readmeContent);
+
+	if (gitStatus) {
+		// create repo if not exists
+	}
 };
