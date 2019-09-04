@@ -215,7 +215,8 @@ module.exports = async _options => {
 	};
 
 	// Calling function
-	({ list } = await loop());
+	// ({ list } = await loop());
+	spinner.stop();
 
 	/**
 	 *  Parse and save object
@@ -253,6 +254,21 @@ module.exports = async _options => {
 	await writeReadmeContent(readmeContent);
 
 	if (gitStatus) {
-		// create repo if not exists
+		// 1. Try pushing into repo first
+		// 2. Create repo if not exist
+		const repoDetails = {
+			name: repo,
+			description: 'A curated list of my GitHub stars by stargazed',
+			homepage: 'https://github.com/abhijithvijayan/stargazed',
+			private: true,
+			has_projects: false,
+			has_issues: false,
+			has_wiki: false,
+		};
+		try {
+			await ghGot('/user/repos', { token, method: 'POST', body: { ...repoDetails } });
+		} catch (err) {
+			flashError(err);
+		}
 	}
 };
