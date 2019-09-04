@@ -107,7 +107,7 @@ const getReadmeTemplate = async () => {
 		spinner.succeed('README template loaded');
 		return template;
 	} catch (err) {
-		spinner.fail('README template loading fail');
+		spinner.fail('README template loading failed!');
 		flashError(err);
 	}
 };
@@ -126,13 +126,13 @@ const buildReadmeContent = async context => {
  *  Write content to README.md
  */
 const writeReadmeContent = async readmeContent => {
-	const spinner = ora('Creating README').start();
+	const spinner = ora('Creating README locally').start();
 
 	try {
 		await promisify(fs.writeFile)('README.md', unescape(readmeContent));
-		spinner.succeed('README created');
+		spinner.succeed('README created locally');
 	} catch (err) {
-		spinner.fail('README creation fail');
+		spinner.fail('Failed to create README');
 		flashError(err);
 	}
 	spinner.stop();
@@ -191,7 +191,7 @@ module.exports = async _options => {
 		try {
 			response = await ghGot(url, { token });
 		} catch (err) {
-			spinner.fail('Error while fetching data!');
+			spinner.fail('Error occured while fetching data!');
 			flashError(err);
 			return;
 		}
@@ -207,8 +207,7 @@ module.exports = async _options => {
 			return loop();
 		}
 
-		spinner.succeed('Data fetch successfully completed!');
-		spinner.succeed(`Fetched ${Object.keys(list).length} items`);
+		spinner.succeed(`Fetched ${Object.keys(list).length} stargazed items`);
 		spinner.stop();
 
 		return { list };
@@ -253,49 +252,63 @@ module.exports = async _options => {
 	await writeReadmeContent(readmeContent);
 
 	if (gitStatus) {
-		const repoSpinner = ora(`Checking if repository ${repo} exists...`).start();
+		const repoSpinner = ora(`Checking if repository '${repo}' exists...`).start();
 
 		let repoExists = false;
+		let isRepoEmpty = false;
+		let sha = null;
 		const contentBuffer = await Buffer.from(readmeContent, 'utf8').toString('base64');
 
 		try {
 			// Get sha of README.md if exists
-			const {
+			({
 				body: { sha },
-			} = await ghGot(`/repos/${username}/${repo}/contents/README.md`, { token });
+			} = await ghGot(`/repos/${username}/${repo}/contents/README.md`, { token }));
 
-			repoSpinner.info('Repository found!');
-			repoSpinner.stop();
-			repoSpinner.start('Updating repository...');
-
-			// Update README.md
-			await ghGot(`/repos/${username}/${repo}/contents/README.md`, {
-				method: 'PUT',
-				token,
-				body: {
-					message: 'update stars by stargazed',
-					content: contentBuffer,
-					sha,
-				},
-			});
 			// Set flag to avoid creating new repo
 			repoExists = true;
 
-			repoSpinner.succeed('Update to repository successful!');
+			repoSpinner.info('Repository found!');
+			repoSpinner.stop();
 		} catch (err) {
-			repoSpinner.fail(err);
+			if (err.body) {
+				if (err.body.message === 'This repository is empty.') {
+					repoExists = true;
+					isRepoEmpty = true;
+				}
+				repoSpinner.fail(chalk.default(err.body.message));
+			}
 		}
-		repoSpinner.stop();
+
+		if (sha && !isRepoEmpty) {
+			try {
+				repoSpinner.start('Updating repository...');
+				// Update README.md
+				await ghGot(`/repos/${username}/${repo}/contents/README.md`, {
+					method: 'PUT',
+					token,
+					body: {
+						message: 'update stars by stargazed',
+						content: contentBuffer,
+						sha,
+					},
+				});
+				repoSpinner.succeed('Update to repository successful!');
+			} catch (err) {
+				repoSpinner.fail(chalk.default(err.body && err.body.message));
+			}
+			repoSpinner.stop();
+		}
 
 		if (!repoExists) {
-			repoSpinner.start('Creating a new repository...');
+			repoSpinner.start('Creating new repository...');
 
 			try {
 				const repoDetails = {
 					name: repo,
 					description: 'A curated list of my GitHub stars by stargazed',
 					homepage: 'https://github.com/abhijithvijayan/stargazed',
-					private: false,
+					private: true,
 					has_projects: false,
 					has_issues: false,
 					has_wiki: false,
@@ -306,7 +319,7 @@ module.exports = async _options => {
 
 				repoSpinner.succeed(`Repository '${repo}' created successfully`);
 				repoSpinner.stop();
-				repoSpinner.start('Creating README file...');
+				repoSpinner.start('Uploading README file...');
 
 				// Create README.md
 				await ghGot(`/repos/${username}/${repo}/contents/README.md`, {
@@ -318,9 +331,9 @@ module.exports = async _options => {
 					},
 				});
 
-				repoSpinner.succeed('README file created successfully');
+				repoSpinner.succeed('README file uploaded successfully');
 			} catch (err) {
-				repoSpinner.fail(err);
+				repoSpinner.fail(chalk.default(err.body && err.body.message));
 			}
 			repoSpinner.stop();
 		}
