@@ -215,8 +215,7 @@ module.exports = async _options => {
 	};
 
 	// Calling function
-	// ({ list } = await loop());
-	spinner.stop();
+	({ list } = await loop());
 
 	/**
 	 *  Parse and save object
@@ -254,21 +253,52 @@ module.exports = async _options => {
 	await writeReadmeContent(readmeContent);
 
 	if (gitStatus) {
-		// 1. Try pushing into repo first
-		// 2. Create repo if not exist
-		const repoDetails = {
-			name: repo,
-			description: 'A curated list of my GitHub stars by stargazed',
-			homepage: 'https://github.com/abhijithvijayan/stargazed',
-			private: true,
-			has_projects: false,
-			has_issues: false,
-			has_wiki: false,
-		};
+		let repoExists = false;
 		try {
-			await ghGot('/user/repos', { token, method: 'POST', body: { ...repoDetails } });
+			// Get sha of README.md if exists
+			const {
+				body: { sha },
+			} = await ghGot(`/repos/${username}/${repo}/contents/README.md`, { token });
+			// Update README.md
+			await ghGot(`/repos/${username}/${repo}/contents/README.md`, {
+				method: 'PUT',
+				token,
+				body: {
+					message: 'update stars by stargazed',
+					content: 'bXkgdXBkYXRlZCBmaWxlIGNvbnRlbnRz',
+					sha,
+				},
+			});
+			repoExists = true;
 		} catch (err) {
-			flashError(err);
+			console.log(chalk.bold.red(err));
+		}
+
+		if (!repoExists) {
+			const repoDetails = {
+				name: repo,
+				description: 'A curated list of my GitHub stars by stargazed',
+				homepage: 'https://github.com/abhijithvijayan/stargazed',
+				private: false,
+				has_projects: false,
+				has_issues: false,
+				has_wiki: false,
+			};
+			try {
+				// Create repo
+				await ghGot('/user/repos', { method: 'POST', token, body: { ...repoDetails } });
+				// Create README.md
+				await ghGot(`/repos/${username}/${repo}/contents/README.md`, {
+					method: 'PUT',
+					token,
+					body: {
+						message: 'initial commit from stargazed',
+						content: 'bXkgbmV3IGZpbGUgY29udGVudHM=',
+					},
+				});
+			} catch (err) {
+				flashError(err);
+			}
 		}
 	}
 };
