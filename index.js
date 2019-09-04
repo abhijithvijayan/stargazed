@@ -213,7 +213,7 @@ module.exports = async _options => {
 		return { list };
 	};
 
-	// Calling function
+	// API Calling function
 	({ list } = await loop());
 
 	/**
@@ -232,6 +232,9 @@ module.exports = async _options => {
 		});
 	}
 
+	/**
+	 *  Sort to Languages alphabetically
+	 */
 	if (sort) {
 		Object.keys(unordered)
 			.sort()
@@ -247,10 +250,13 @@ module.exports = async _options => {
 	const readmeContent = await buildReadmeContent({ languages, username, stargazed: sort ? ordered : unordered });
 
 	/**
-	 *  Write Readme Content
+	 *  Write Readme Content locally
 	 */
 	await writeReadmeContent(readmeContent);
 
+	/**
+	 *  Handle Repo actions
+	 */
 	if (gitStatus) {
 		const repoSpinner = ora(`Checking if repository '${repo}' exists...`).start();
 
@@ -259,8 +265,10 @@ module.exports = async _options => {
 		let sha = null;
 		const contentBuffer = await Buffer.from(readmeContent, 'utf8').toString('base64');
 
+		/**
+		 *  Get sha of README.md if it exist
+		 */
 		try {
-			// Get sha of README.md if exists
 			({
 				body: { sha },
 			} = await ghGot(`/repos/${username}/${repo}/contents/README.md`, { token }));
@@ -272,14 +280,20 @@ module.exports = async _options => {
 			repoSpinner.stop();
 		} catch (err) {
 			if (err.body) {
+				/**
+				 *  ToDo: Creation request Issue when GitHub returns `Not Found` after manually emptying repo
+				 */
 				if (err.body.message === 'This repository is empty.') {
 					repoExists = true;
 					isRepoEmpty = true;
 				}
-				repoSpinner.fail(chalk.default(err.body.message));
+				// repoSpinner.fail(chalk.default(err.body.message));
 			}
 		}
 
+		/**
+		 *  Update README on the upstream repo
+		 */
 		if (sha && !isRepoEmpty) {
 			try {
 				repoSpinner.start('Updating repository...');
@@ -300,10 +314,13 @@ module.exports = async _options => {
 			repoSpinner.stop();
 		}
 
-		if (!repoExists) {
-			repoSpinner.start('Creating new repository...');
+		if (!repoExists || isRepoEmpty) {
+			/**
+			 *  Create new Repository
+			 */
+			if (!repoExists) {
+				repoSpinner.start('Creating new repository...');
 
-			try {
 				const repoDetails = {
 					name: repo,
 					description: 'A curated list of my GitHub stars by stargazed',
@@ -314,13 +331,22 @@ module.exports = async _options => {
 					has_wiki: false,
 				};
 
-				// Create repo
-				await ghGot('/user/repos', { method: 'POST', token, body: { ...repoDetails } });
+				try {
+					await ghGot('/user/repos', { method: 'POST', token, body: { ...repoDetails } });
 
-				repoSpinner.succeed(`Repository '${repo}' created successfully`);
+					repoSpinner.succeed(`Repository '${repo}' created successfully`);
+				} catch (err) {
+					repoSpinner.fail(chalk.default(err.body && err.body.message));
+				}
 				repoSpinner.stop();
-				repoSpinner.start('Uploading README file...');
+			}
 
+			/**
+			 *  Upload file if repo doesn't exist or is empty
+			 */
+			repoSpinner.start('Uploading README file...');
+
+			try {
 				// Create README.md
 				await ghGot(`/repos/${username}/${repo}/contents/README.md`, {
 					method: 'PUT',
