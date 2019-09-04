@@ -253,52 +253,76 @@ module.exports = async _options => {
 	await writeReadmeContent(readmeContent);
 
 	if (gitStatus) {
+		const repoSpinner = ora(`Checking if repository ${repo} exists...`).start();
+
 		let repoExists = false;
+		const contentBuffer = await Buffer.from(readmeContent, 'utf8').toString('base64');
+
 		try {
 			// Get sha of README.md if exists
 			const {
 				body: { sha },
 			} = await ghGot(`/repos/${username}/${repo}/contents/README.md`, { token });
+
+			repoSpinner.info('Repository found!');
+			repoSpinner.stop();
+			repoSpinner.start('Updating repository...');
+
 			// Update README.md
 			await ghGot(`/repos/${username}/${repo}/contents/README.md`, {
 				method: 'PUT',
 				token,
 				body: {
 					message: 'update stars by stargazed',
-					content: 'bXkgdXBkYXRlZCBmaWxlIGNvbnRlbnRz',
+					content: contentBuffer,
 					sha,
 				},
 			});
+			// Set flag to avoid creating new repo
 			repoExists = true;
+
+			repoSpinner.succeed('Update to repository successful!');
 		} catch (err) {
-			console.log(chalk.bold.red(err));
+			repoSpinner.fail(err);
 		}
+		repoSpinner.stop();
 
 		if (!repoExists) {
-			const repoDetails = {
-				name: repo,
-				description: 'A curated list of my GitHub stars by stargazed',
-				homepage: 'https://github.com/abhijithvijayan/stargazed',
-				private: false,
-				has_projects: false,
-				has_issues: false,
-				has_wiki: false,
-			};
+			repoSpinner.start('Creating a new repository...');
+
 			try {
+				const repoDetails = {
+					name: repo,
+					description: 'A curated list of my GitHub stars by stargazed',
+					homepage: 'https://github.com/abhijithvijayan/stargazed',
+					private: false,
+					has_projects: false,
+					has_issues: false,
+					has_wiki: false,
+				};
+
 				// Create repo
 				await ghGot('/user/repos', { method: 'POST', token, body: { ...repoDetails } });
+
+				repoSpinner.succeed(`Repository '${repo}' created successfully`);
+				repoSpinner.stop();
+				repoSpinner.start('Creating README file...');
+
 				// Create README.md
 				await ghGot(`/repos/${username}/${repo}/contents/README.md`, {
 					method: 'PUT',
 					token,
 					body: {
 						message: 'initial commit from stargazed',
-						content: 'bXkgbmV3IGZpbGUgY29udGVudHM=',
+						content: contentBuffer,
 					},
 				});
+
+				repoSpinner.succeed('README file created successfully');
 			} catch (err) {
-				flashError(err);
+				repoSpinner.fail(err);
 			}
+			repoSpinner.stop();
 		}
 	}
 };
