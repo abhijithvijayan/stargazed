@@ -263,7 +263,7 @@ module.exports = async _options => {
 		let repoExists = false;
 		let isRepoEmpty = false;
 		let sha = null;
-		const contentBuffer = await Buffer.from(readmeContent, 'utf8').toString('base64');
+		const contentBuffer = await Buffer.from(unescape(readmeContent), 'utf8').toString('base64');
 
 		/**
 		 *  Get sha of README.md if it exist
@@ -325,7 +325,7 @@ module.exports = async _options => {
 					name: repo,
 					description: 'A curated list of my GitHub stars by stargazed',
 					homepage: 'https://github.com/abhijithvijayan/stargazed',
-					private: true,
+					private: false,
 					has_projects: false,
 					has_issues: false,
 					has_wiki: false,
