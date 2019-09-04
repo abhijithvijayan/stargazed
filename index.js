@@ -1,3 +1,7 @@
+/**
+ *  @author abhijithvijayan <abhijithvijayan.in>
+ */
+
 const ora = require('ora');
 const fs = require('fs');
 const ejs = require('ejs');
@@ -280,9 +284,6 @@ module.exports = async _options => {
 			repoSpinner.stop();
 		} catch (err) {
 			if (err.body) {
-				/**
-				 *  ToDo: Creation request Issue when GitHub returns `Not Found` after manually emptying repo
-				 */
 				if (err.body.message === 'This repository is empty.') {
 					repoExists = true;
 					isRepoEmpty = true;
@@ -295,8 +296,9 @@ module.exports = async _options => {
 		 *  Update README on the upstream repo
 		 */
 		if (sha && !isRepoEmpty) {
+			repoSpinner.start('Updating repository...');
+
 			try {
-				repoSpinner.start('Updating repository...');
 				// Update README.md
 				await ghGot(`/repos/${username}/${repo}/contents/README.md`, {
 					method: 'PUT',
@@ -359,7 +361,9 @@ module.exports = async _options => {
 
 				repoSpinner.succeed('README file uploaded successfully');
 			} catch (err) {
-				repoSpinner.fail(chalk.default(err.body && err.body.message));
+				if (err.body) {
+					repoSpinner.fail(chalk.default(err.body.message));
+				}
 			}
 			repoSpinner.stop();
 		}
