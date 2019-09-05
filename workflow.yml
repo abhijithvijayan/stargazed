@@ -1,0 +1,27 @@
+name: 'Update by stargazed'
+# This workflow runs at 00:30 everyday
+on:
+  schedule:
+    -
+      cron: '30 0 * * *'
+jobs:
+  build:
+    name: 'stargazed update'
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: 'Use GitHub Actions'
+        uses: actions/checkout@v1
+      -
+        name: 'Use Node.js 10.x'
+        uses: actions/setup-node@v1
+        with:
+          node-version: 10.x
+      -
+        name: 'Install Package'
+        run: 'npm install --global stargazed'
+      -
+        name: 'Update Repo'
+        env:
+          GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
+        run: 'stargazed --username  "abhijithvijayan" --token ${GITHUB_TOKEN} --repo "awesome-stars" --message "stargazed update by GitHub Actions Workflow" --sort'
