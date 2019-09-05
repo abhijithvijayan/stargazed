@@ -167,6 +167,24 @@ const getWorkflowTemplate = async () => {
 	}
 };
 
+/**
+ *  Build the workflow.yml content
+ */
+
+const buildWorkflowContent = async (username, repo) => {
+	// Read workflow_sample.yml
+	let workflow = await getWorkflowTemplate();
+	// Replace with user-defined values
+	const mapObj = {
+		'{{USERNAME}}': username,
+		'{{REPO}}': repo,
+	};
+	workflow = workflow.replace(/{{USERNAME}}|{{REPO}}/gi, function(matched) {
+		return `"${mapObj[matched]}"`;
+	});
+	return workflow;
+};
+
 module.exports = async _options => {
 	const err = validate(_options);
 
@@ -210,7 +228,7 @@ module.exports = async _options => {
 		};
 	}
 
-	let page = 9;
+	let page = 1;
 	let list = [];
 	const unordered = {};
 	const ordered = {};
@@ -361,7 +379,7 @@ module.exports = async _options => {
 					name: repo,
 					description: 'A curated list of my GitHub stars by stargazed',
 					homepage: 'https://github.com/abhijithvijayan/stargazed',
-					private: true,
+					private: false,
 					has_projects: false,
 					has_issues: false,
 					has_wiki: false,
@@ -408,9 +426,9 @@ module.exports = async _options => {
 		if (cronJob) {
 			repoSpinner.start('Setting up cron job for GitHub Actions...');
 
-			// Read workflow_sample.yml
-			const sampleYML = await getWorkflowTemplate();
-			const workflowBuffer = await Buffer.from(sampleYML, 'utf8').toString('base64');
+			const workflowContent = await buildWorkflowContent(username, repo);
+			// String to base64
+			const workflowBuffer = await Buffer.from(workflowContent, 'utf8').toString('base64');
 			// Create .github/workflows/workflow.yml file
 			try {
 				// Create README.md
@@ -426,6 +444,7 @@ module.exports = async _options => {
 				repoSpinner.succeed('Setup GitHub Actions workflow success');
 			} catch (err) {
 				if (err.body) {
+					// GitHub returns this error if file already exist
 					if (err.body.message === 'Invalid request.\n\n"sha" wasn\'t supplied.') {
 						repoSpinner.info(chalk.default('GitHub workflow already setup for the repo!'));
 					} else {
