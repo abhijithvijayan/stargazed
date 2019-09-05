@@ -17,7 +17,8 @@ const cli = meow(
 			-v, --version          Show the version and exit with code 0
 
 		Examples
-			$ stargazed --username abhijithvijayan --token "GITHUB-TOKEN" --sort
+			$ stargazed --username abhijithvijayan --token "GITHUB_TOKEN" --sort
+    	$ stargazed -u "abhijithvijayan" -r "REPO_NAME" -t "GITHUB_TOKEN" -m "COMMIT_MESSAGE" -s
 	`,
 	{
 		flags: {
