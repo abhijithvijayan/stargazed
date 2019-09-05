@@ -1,7 +1,4 @@
-# stargazed
-
-[![Build Status](https://travis-ci.com/abhijithvijayan/stargazed.svg?branch=master)](https://travis-ci.com/abhijithvijayan/stargazed)
-[![npm version](https://img.shields.io/npm/v/stargazed)](https://www.npmjs.com/package/stargazed)
+# stargazed [![npm version](https://img.shields.io/npm/v/stargazed)](https://www.npmjs.com/package/stargazed)
 
 > Creating your own Awesome List of GitHub Stars!
 
@@ -32,11 +29,12 @@ $ stargazed --help
 
   Examples
     $ stargazed --username abhijithvijayan --token "GITHUB-TOKEN" --sort
+    $ stargazed -u "abhijithvijayan" -r "awesome-stars" -t "GITHUB-TOKEN" -m "COMMIT_MESSAGE" -s
 ```
 
 ## Demo
 
-- [awesome-stars](https://github.com/abhijithvijayan/awesome-stars)
+- [abhijithvijayan/awesome-stars](https://github.com/abhijithvijayan/awesome-stars)
 
 ## FAQ
 

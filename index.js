@@ -188,6 +188,9 @@ module.exports = async _options => {
 
 	const spinner = ora('Fetching stargazed repositories...').start();
 
+	/**
+	 *  Asynchronous API Call
+	 */
 	const loop = async () => {
 		let response;
 		const url = `users/${username}/starred?&per_page=100&page=${page}`;
@@ -304,14 +307,16 @@ module.exports = async _options => {
 					method: 'PUT',
 					token,
 					body: {
-						message: 'update stars by stargazed',
+						message: message || 'update stars by stargazed',
 						content: contentBuffer,
 						sha,
 					},
 				});
 				repoSpinner.succeed('Update to repository successful!');
 			} catch (err) {
-				repoSpinner.fail(chalk.default(err.body && err.body.message));
+				if (err.body) {
+					repoSpinner.fail(chalk.default(err.body.message));
+				}
 			}
 			repoSpinner.stop();
 		}
@@ -354,7 +359,7 @@ module.exports = async _options => {
 					method: 'PUT',
 					token,
 					body: {
-						message: 'initial commit from stargazed',
+						message: message || 'initial commit from stargazed',
 						content: contentBuffer,
 					},
 				});
