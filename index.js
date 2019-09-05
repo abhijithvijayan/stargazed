@@ -62,6 +62,15 @@ const validate = _options => {
 		}
 	}
 	if (
+		Object.prototype.hasOwnProperty.call(_options, 'workflow') ||
+		Object.prototype.hasOwnProperty.call(_options, 'w')
+	) {
+		options.workflow = _options.workflow || _options.w;
+		if (!isBoolean(options.workflow)) {
+			return new TypeError(`invalid option. Workflow option must be a boolean primitive.`);
+		}
+	}
+	if (
 		Object.prototype.hasOwnProperty.call(_options, 'version') ||
 		Object.prototype.hasOwnProperty.call(_options, 'v')
 	) {
@@ -142,6 +151,22 @@ const writeReadmeContent = async readmeContent => {
 	spinner.stop();
 };
 
+/**
+ *  Read the workflow sample file
+ */
+const getWorkflowTemplate = async () => {
+	const spinner = ora('Loading sample workflow file').start();
+
+	try {
+		const sample = await promisify(fs.readFile)(path.resolve(__dirname, './workflow_sample.yml'), 'utf8');
+		spinner.succeed('workflow_sample.yml loaded');
+		return sample;
+	} catch (err) {
+		spinner.fail('workflow_sample.yml loading failed!');
+		flashError(err);
+	}
+};
+
 module.exports = async _options => {
 	const err = validate(_options);
 
@@ -150,9 +175,10 @@ module.exports = async _options => {
 		return;
 	}
 
-	const { username, token = '', sort, repo, message, version } = options;
+	const { username, token = '', sort, repo, message, workflow, version } = options;
 
 	let gitStatus = false;
+	let cronJob = false;
 
 	if (version) {
 		console.log(chalk.bold.green(pkg.version));
@@ -169,6 +195,9 @@ module.exports = async _options => {
 			flashError('Error: creating repository needs token. Set --token');
 			return;
 		}
+		if (workflow) {
+			cronJob = true;
+		}
 		gitStatus = true;
 	}
 
@@ -181,7 +210,7 @@ module.exports = async _options => {
 		};
 	}
 
-	let page = 1;
+	let page = 9;
 	let list = [];
 	const unordered = {};
 	const ordered = {};
@@ -332,7 +361,7 @@ module.exports = async _options => {
 					name: repo,
 					description: 'A curated list of my GitHub stars by stargazed',
 					homepage: 'https://github.com/abhijithvijayan/stargazed',
-					private: false,
+					private: true,
 					has_projects: false,
 					has_issues: false,
 					has_wiki: false,
@@ -343,7 +372,7 @@ module.exports = async _options => {
 
 					repoSpinner.succeed(`Repository '${repo}' created successfully`);
 				} catch (err) {
-					repoSpinner.fail(chalk.default(err.body && err.body.message));
+					repoSpinner.info(chalk.default(err.body && err.body.message));
 				}
 				repoSpinner.stop();
 			}
@@ -368,6 +397,40 @@ module.exports = async _options => {
 			} catch (err) {
 				if (err.body) {
 					repoSpinner.fail(chalk.default(err.body.message));
+				}
+			}
+			repoSpinner.stop();
+		}
+
+		/**
+		 *  Setup GitHub Actions for Daily AutoUpdate
+		 */
+		if (cronJob) {
+			repoSpinner.start('Setting up cron job for GitHub Actions...');
+
+			// Read workflow_sample.yml
+			const sampleYML = await getWorkflowTemplate();
+			const workflowBuffer = await Buffer.from(sampleYML, 'utf8').toString('base64');
+			// Create .github/workflows/workflow.yml file
+			try {
+				// Create README.md
+				await ghGot(`/repos/${username}/${repo}/contents/.github/workflows/workflow.yml`, {
+					method: 'PUT',
+					token,
+					body: {
+						message: 'Set up GitHub workflow for daily auto-update',
+						content: workflowBuffer,
+					},
+				});
+
+				repoSpinner.succeed('Setup GitHub Actions workflow success');
+			} catch (err) {
+				if (err.body) {
+					if (err.body.message === 'Invalid request.\n\n"sha" wasn\'t supplied.') {
+						repoSpinner.info(chalk.default('GitHub workflow already setup for the repo!'));
+					} else {
+						repoSpinner.fail(chalk.default(err.body.message));
+					}
 				}
 			}
 			repoSpinner.stop();

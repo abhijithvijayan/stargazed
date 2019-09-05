@@ -20,7 +20,8 @@
 	"files": [
 		"index.js",
 		"cli.js",
-		"template.md"
+		"template.md",
+		"workflow_sample.yml"
 	],
 	"keywords": [
 		"awesome",

@@ -14,6 +14,7 @@ const cli = meow(
 			-s, --sort             sort by language
 			-r, --repo TEXT	       repository name
 			-m, --message TEXT     commit message
+			-w, --workflow         Setup GitHub Actions for Daily AutoUpdate
 			-v, --version          Show the version and exit with code 0
 
 		Examples
@@ -22,7 +23,7 @@ const cli = meow(
 	`,
 	{
 		flags: {
-			boolean: ['sort', 'version'],
+			boolean: ['sort', 'version', 'workflow'],
 			string: ['username', 'token', 'repo', 'message'],
 			alias: {
 				u: 'username',
@@ -30,6 +31,7 @@ const cli = meow(
 				s: 'sort',
 				r: 'repo',
 				m: 'message',
+				w: 'workflow',
 				v: 'version',
 			},
 		},

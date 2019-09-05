@@ -25,6 +25,7 @@ $ stargazed --help
     -s, --sort             sort by language
     -r, --repo TEXT  	   repository name
     -m, --message TEXT     commit message
+		-w, --workflow         Setup GitHub Actions for Daily AutoUpdate
     -v, --version          Show the version and exit with code 0
 
   Examples
@@ -49,6 +50,13 @@ Goto [Personal access tokens](https://github.com/settings/tokens)
   see [Rate Limiting](https://developer.github.com/v3/#rate-limiting)
 - The token must be passed together when you want to automatically
   create the repository.
+
+### How can I automate the process after initial run?
+
+- Use `-w, --workflow` flag to set up GitHub workflow that updates the repo at 00:30 everyday.
+  ```
+  $ stargazed -u "abhijithvijayan" -r "awesome-stars" -t "GITHUB-TOKEN" -s -w
+  ```
 
 ## License
 
