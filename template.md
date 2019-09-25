@@ -5,7 +5,7 @@
 <% if (languages && languages.length) { -%>
 ## 🏠 Contents
 <% languages.map((item) => { -%>
-- [<%= item.replace(" ", "&nbsp;") %>](#<%= item.toLowerCase().replace(" ", "-") %>)
+- [<%= item.replace(/\s/g, "&nbsp;") %>](#<%= item.toLowerCase().replace(/\s/g, "-") %>)
 <% }) -%>
 <% Object.entries(stargazed).map(([key, value]) => { -%>
 
