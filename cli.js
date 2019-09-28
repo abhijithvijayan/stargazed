@@ -19,6 +19,7 @@ const cli = meow(
 
 		Examples
 			$ stargazed --username abhijithvijayan --token "GITHUB_TOKEN" --sort
+			$ stargazed -u "abhijithvijayan" -r "awesome-stars" -t "GITHUB-TOKEN" -s -w
     	$ stargazed -u "abhijithvijayan" -r "REPO_NAME" -t "GITHUB_TOKEN" -m "COMMIT_MESSAGE" -s
 	`,
 	{
