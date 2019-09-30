@@ -301,7 +301,12 @@ module.exports = async _options => {
 	 *  Generate Language Index
 	 */
 	const languages = Object.keys(sort ? ordered : unordered);
-	const readmeContent = await buildReadmeContent({ languages, username, stargazed: sort ? ordered : unordered });
+	const readmeContent = await buildReadmeContent({
+		languages,
+		username,
+		count: Object.keys(list).length,
+		stargazed: sort ? ordered : unordered,
+	});
 
 	/**
 	 *  Write Readme Content locally
