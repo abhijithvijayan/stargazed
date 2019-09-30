@@ -12,6 +12,12 @@ Ensure you have [Node.js](https://nodejs.org) 8 or later installed. Then run the
 $ npm install --global stargazed
 ```
 
+If you don't want to install the CLI globally you can use `npx` to run the CLI:
+
+```
+$ npx stargazed --help
+```
+
 ## Usage
 
 ```
