@@ -275,13 +275,20 @@ module.exports = async _options => {
 	 */
 	if (Array.isArray(list)) {
 		list.map(item => {
-			let { name, description, html_url, language } = item;
+			let {
+				name,
+				description,
+				html_url,
+				language,
+				owner: { login },
+				stargazers_count,
+			} = item;
 			language = language || 'Others';
 			description = description ? description.htmlEscape().replace('\n', '') : '';
 			if (!(language in unordered)) {
 				unordered[language] = [];
 			}
-			unordered[language].push([name, html_url, description.trim()]);
+			unordered[language].push([name, html_url, description.trim(), login, stargazers_count]);
 			return null;
 		});
 	}

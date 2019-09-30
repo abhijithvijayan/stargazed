@@ -6,7 +6,7 @@
 ![Total](https://img.shields.io/badge/Total-<%= count %>-green.svg)
 <% }															-%>
 <% if (date) {														-%>
-![Updated](https://img.shields.io/badge/Date-<%= date %>-blue.svg)
+![Updated](https://img.shields.io/badge/Updated-<%= date %>-blue.svg)
 <% }															-%>
 
 <% if (languages && languages.length) { 										-%>
@@ -32,7 +32,7 @@
 
 ## <%= key%>
 <% value.map(item => {													-%>
-- [<%= item[0] -%>](<%= item[1] -%>) - <%= item[2] -%>
+- [<%= item[0] -%>](<%= item[1] -%>) - <%= item[2] -%> <%= item[3] -%> <%= item[4] -%>
   
 <% })															-%>
 <% })															-%>
