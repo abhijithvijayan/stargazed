@@ -4,8 +4,11 @@
 
 <% if (count) {														-%>
 ![Total](https://img.shields.io/badge/Total-<%= count %>-green.svg)
-<% }					
-										-%>
+<% }															-%>
+<% if (date) {														-%>
+![Updated](https://img.shields.io/badge/Date-<%= date %>-blue.svg)
+<% }															-%>
+
 <% if (languages && languages.length) { 										-%>
 ## 🏠 Contents
 <% let language;													-%>

@@ -306,6 +306,7 @@ module.exports = async _options => {
 		username,
 		count: Object.keys(list).length,
 		stargazed: sort ? ordered : unordered,
+		date: `${new Date().getDate()}--${new Date().getMonth()}--${new Date().getFullYear()}`,
 	});
 
 	/**
