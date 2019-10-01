@@ -12,6 +12,12 @@ Ensure you have [Node.js](https://nodejs.org) 8 or later installed. Then run the
 $ npm install --global stargazed
 ```
 
+If you don't want to install the CLI globally, you can use `npx` to run the CLI:
+
+```
+$ npx stargazed --help
+```
+
 ## Usage
 
 ```
@@ -25,11 +31,12 @@ $ stargazed --help
     -s, --sort             sort by language
     -r, --repo TEXT  	   repository name
     -m, --message TEXT     commit message
-		-w, --workflow         Setup GitHub Actions for Daily AutoUpdate
+    -w, --workflow         Setup GitHub Actions for Daily AutoUpdate
     -v, --version          Show the version and exit with code 0
 
   Examples
     $ stargazed --username abhijithvijayan --token "GITHUB-TOKEN" --sort
+    $ stargazed -u "abhijithvijayan" -r "awesome-stars" -t "GITHUB-TOKEN" -s -w
     $ stargazed -u "abhijithvijayan" -r "awesome-stars" -t "GITHUB-TOKEN" -m "COMMIT_MESSAGE" -s
 ```
 
