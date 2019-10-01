@@ -275,13 +275,13 @@ module.exports = async _options => {
    */
   if (Array.isArray(list)) {
     list.map(item => {
-      let { name, description, html_url, language, stargazers_count } = item;
+      let { name, description, html_url, language, stargazers_count: stars } = item;
       language = language || 'Others';
       description = description ? description.htmlEscape().replace('\n', '') : '';
       if (!(language in unordered)) {
         unordered[language] = [];
       }
-      unordered[language].push([name, html_url, description.trim()]);
+      unordered[language].push([name, html_url, description.trim(), stars]);
       return null;
     });
   }
