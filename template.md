@@ -31,10 +31,10 @@
 <% Object.entries(stargazed).map(([key, value]) => {									-%>
 
 ## <%= key %>
-| Name 	|  Stars 	| Author  	|  Description 	|
-|---	|---	|---	|---	|
-<% value.map(item => {													-%>
-|  [<%= item[0] -%>](<%= item[1] -%>) | <%= item[3] -%> | <%= item[4] -%> | <%= item[2] -%> |
+|  | Name 	|  Stars 	| Author  	|  Description 	|
+|---	|---	|---	|---	|---	|
+<% value.map((item, index) => {													-%>
+| <%= index+1 -%> |  [<%= item[0] -%>](<%= item[1] -%>) | <%= item[3] -%> | <%= item[4] -%> | <%= item[2] -%> |
 <% })															-%>
 <% })															-%>
 <% }															-%>
