@@ -280,15 +280,15 @@ module.exports = async _options => {
 				description,
 				html_url,
 				language,
-				owner: { login },
 				stargazers_count,
+				owner: { login },
 			} = item;
 			language = language || 'Others';
 			description = description ? description.htmlEscape().replace('\n', '') : '';
 			if (!(language in unordered)) {
 				unordered[language] = [];
 			}
-			unordered[language].push([name, html_url, description.trim(), login, stargazers_count]);
+			unordered[language].push([name, html_url, description.trim(), stargazers_count, login]);
 			return null;
 		});
 	}
