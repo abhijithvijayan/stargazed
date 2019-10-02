@@ -288,7 +288,8 @@ module.exports = async _options => {
 			if (!(language in unordered)) {
 				unordered[language] = [];
 			}
-			unordered[language].push([name, html_url, description.trim(), stargazers_count, login]);
+			// push item into array
+			unordered[language].push([name, html_url, description.trim(), login, stargazers_count]);
 			return null;
 		});
 	}
