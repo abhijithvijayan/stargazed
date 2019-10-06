@@ -65,6 +65,10 @@ Goto [Personal access tokens](https://github.com/settings/tokens)
   $ stargazed -u "abhijithvijayan" -r "awesome-stars" -t "GITHUB-TOKEN" -s -w
   ```
 
+### Contributing
+
+Please review the [code of conduct](CODE_OF_CONDUCT.md)  
+
 ## License
 
 MIT © [Abhijith Vijayan](https://abhijithvijayan.in)
