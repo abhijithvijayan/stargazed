@@ -1,7 +1,7 @@
 import * as methods from '../index';
 
-describe('Commands functional tests', () => {
+describe('Commands functional tests', async () => {
 	test('should ', () => {
-		console.log(methods);
+		console.log(await methods);
 	});
 });
