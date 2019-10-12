@@ -61,18 +61,20 @@ Goto [Personal access tokens](https://github.com/settings/tokens)
 ### How can I automate the process after initial run?
 
 ##### 1. Sign up for GitHub actions beta
+
 ```
 https://github.com/features/actions
 ```
 
 #### 2. Use `-w, --workflow` flag to set up GitHub workflow that updates the repo at 00:30 everyday.
-  ```
-  $ stargazed -u "abhijithvijayan" -r "awesome-stars" -t "GITHUB-TOKEN" -s -w
-  ```
 
-### Contributing
+```
+$ stargazed -u "abhijithvijayan" -r "awesome-stars" -t "GITHUB-TOKEN" -s -w
+```
 
-Please review the [code of conduct](CODE_OF_CONDUCT.md)  
+## Contributing
+
+Thanks for being willing to contribute! Kindly check the [contribution guidelines](CONTRIBUTING.md) for more details
 
 ## License
 
