@@ -20,9 +20,7 @@ const options = {};
 
 export const validate = _options => {
 	if (!isObject(_options)) {
-		return new TypeError(
-			`invalid input argument. Options argument must be an object. Value: \`${_options}\`.`
-		);
+		return new TypeError(`invalid input argument. Options argument must be an object. Value: \`${_options}\`.`);
 	}
 	if (
 		Object.prototype.hasOwnProperty.call(_options, 'username') ||
@@ -30,9 +28,7 @@ export const validate = _options => {
 	) {
 		options.username = _options.username || _options.u;
 		if (!isString(options.username)) {
-			return new TypeError(
-				`invalid option. Username must be a string primitive.`
-			);
+			return new TypeError(`invalid option. Username must be a string primitive.`);
 		}
 	}
 	if (
@@ -44,15 +40,10 @@ export const validate = _options => {
 			return new TypeError(`invalid option. Token must be a string primitive.`);
 		}
 	}
-	if (
-		Object.prototype.hasOwnProperty.call(_options, 'repo') ||
-		Object.prototype.hasOwnProperty.call(_options, 'r')
-	) {
+	if (Object.prototype.hasOwnProperty.call(_options, 'repo') || Object.prototype.hasOwnProperty.call(_options, 'r')) {
 		options.repo = _options.repo || _options.r;
 		if (!isString(options.repo)) {
-			return new TypeError(
-				`invalid option. Repo name must be a string primitive.`
-			);
+			return new TypeError(`invalid option. Repo name must be a string primitive.`);
 		}
 	}
 	if (
@@ -61,20 +52,13 @@ export const validate = _options => {
 	) {
 		options.message = _options.message || _options.m;
 		if (!isString(options.message)) {
-			return new TypeError(
-				`invalid option. Commit message must be a string primitive.`
-			);
+			return new TypeError(`invalid option. Commit message must be a string primitive.`);
 		}
 	}
-	if (
-		Object.prototype.hasOwnProperty.call(_options, 'sort') ||
-		Object.prototype.hasOwnProperty.call(_options, 's')
-	) {
+	if (Object.prototype.hasOwnProperty.call(_options, 'sort') || Object.prototype.hasOwnProperty.call(_options, 's')) {
 		options.sort = _options.sort || _options.s;
 		if (!isBoolean(options.sort)) {
-			return new TypeError(
-				`invalid option. Sort option must be a boolean primitive.`
-			);
+			return new TypeError(`invalid option. Sort option must be a boolean primitive.`);
 		}
 	}
 	if (
@@ -83,9 +67,7 @@ export const validate = _options => {
 	) {
 		options.workflow = _options.workflow || _options.w;
 		if (!isBoolean(options.workflow)) {
-			return new TypeError(
-				`invalid option. Workflow option must be a boolean primitive.`
-			);
+			return new TypeError(`invalid option. Workflow option must be a boolean primitive.`);
 		}
 	}
 	if (
@@ -94,9 +76,7 @@ export const validate = _options => {
 	) {
 		options.version = _options.version || _options.v;
 		if (!isBoolean(options.version)) {
-			return new TypeError(
-				`invalid option. Version option must be a boolean primitive.`
-			);
+			return new TypeError(`invalid option. Version option must be a boolean primitive.`);
 		}
 	}
 	return null;
@@ -136,10 +116,7 @@ export const getReadmeTemplate = async () => {
 	const spinner = ora('Loading README template').start();
 
 	try {
-		const template = await promisify(fs.readFile)(
-			path.resolve(__dirname, './template.md'),
-			'utf8'
-		);
+		const template = await promisify(fs.readFile)(path.resolve(__dirname, './template.md'), 'utf8');
 		spinner.succeed('README template loaded');
 		return template;
 	} catch (err) {
@@ -181,10 +158,7 @@ export const getWorkflowTemplate = async () => {
 	const spinner = ora('Loading sample workflow file').start();
 
 	try {
-		const sample = await promisify(fs.readFile)(
-			path.resolve(__dirname, './workflow_sample.yml'),
-			'utf8'
-		);
+		const sample = await promisify(fs.readFile)(path.resolve(__dirname, './workflow_sample.yml'), 'utf8');
 		spinner.succeed('workflow_sample.yml loaded');
 		return sample;
 	} catch (err) {
@@ -219,15 +193,7 @@ module.exports = async _options => {
 		return;
 	}
 
-	const {
-		username,
-		token = '',
-		sort,
-		repo,
-		message,
-		workflow,
-		version,
-	} = options;
+	const { username, token = '', sort, repo, message, workflow, version } = options;
 
 	let gitStatus = false;
 	let cronJob = false;
@@ -318,20 +284,12 @@ module.exports = async _options => {
 				owner: { login },
 			} = item;
 			language = language || 'Others';
-			description = description
-				? description.htmlEscape().replace('\n', '')
-				: '';
+			description = description ? description.htmlEscape().replace('\n', '') : '';
 			if (!(language in unordered)) {
 				unordered[language] = [];
 			}
 			// push item into array
-			unordered[language].push([
-				name,
-				html_url,
-				description.trim(),
-				login,
-				stargazers_count,
-			]);
+			unordered[language].push([name, html_url, description.trim(), login, stargazers_count]);
 			return null;
 		});
 	}
@@ -368,17 +326,12 @@ module.exports = async _options => {
 	 *  Handle Repo actions
 	 */
 	if (gitStatus) {
-		const repoSpinner = ora(
-			`Checking if repository '${repo}' exists...`
-		).start();
+		const repoSpinner = ora(`Checking if repository '${repo}' exists...`).start();
 
 		let repoExists = false;
 		let isRepoEmpty = false;
 		let sha = null;
-		const contentBuffer = await Buffer.from(
-			unescape(readmeContent),
-			'utf8'
-		).toString('base64');
+		const contentBuffer = await Buffer.from(unescape(readmeContent), 'utf8').toString('base64');
 
 		/**
 		 *  Get sha of README.md if it exist
@@ -495,35 +448,25 @@ module.exports = async _options => {
 
 			const workflowContent = await buildWorkflowContent(username, repo);
 			// String to base64
-			const workflowBuffer = await Buffer.from(
-				workflowContent,
-				'utf8'
-			).toString('base64');
+			const workflowBuffer = await Buffer.from(workflowContent, 'utf8').toString('base64');
 			// Create .github/workflows/workflow.yml file
 			try {
 				// Create README.md
-				await ghGot(
-					`/repos/${username}/${repo}/contents/.github/workflows/workflow.yml`,
-					{
-						method: 'PUT',
-						token,
-						body: {
-							message: 'Set up GitHub workflow for daily auto-update',
-							content: workflowBuffer,
-						},
-					}
-				);
+				await ghGot(`/repos/${username}/${repo}/contents/.github/workflows/workflow.yml`, {
+					method: 'PUT',
+					token,
+					body: {
+						message: 'Set up GitHub workflow for daily auto-update',
+						content: workflowBuffer,
+					},
+				});
 
 				repoSpinner.succeed('Setup GitHub Actions workflow success');
 			} catch (err) {
 				if (err.body) {
 					// GitHub returns this error if file already exist
-					if (
-						err.body.message === 'Invalid request.\n\n"sha" wasn\'t supplied.'
-					) {
-						repoSpinner.info(
-							chalk.default('GitHub workflow already setup for the repo!')
-						);
+					if (err.body.message === 'Invalid request.\n\n"sha" wasn\'t supplied.') {
+						repoSpinner.info(chalk.default('GitHub workflow already setup for the repo!'));
 					} else {
 						repoSpinner.fail(chalk.default(err.body.message));
 					}
