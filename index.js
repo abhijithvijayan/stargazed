@@ -18,7 +18,7 @@ const pkg = require('./package.json');
 
 const options = {};
 
-const validate = _options => {
+export const validate = _options => {
 	if (!isObject(_options)) {
 		return new TypeError(`invalid input argument. Options argument must be an object. Value: \`${_options}\`.`);
 	}
@@ -85,7 +85,7 @@ const validate = _options => {
 /**
  *  Display Validation Errors
  */
-const flashError = message => {
+export const flashError = message => {
 	console.error(chalk.bold.red(`✖ ${message}`));
 	process.exit(1);
 };
@@ -93,7 +93,7 @@ const flashError = message => {
 /**
  *  Escape symbol table
  */
-const htmlEscapeTable = {
+export const htmlEscapeTable = {
 	'>': '&gt;',
 	'<': '&lt;',
 };
@@ -112,7 +112,7 @@ String.prototype.htmlEscape = function() {
 /**
  *  Read the template from markdown file
  */
-const getReadmeTemplate = async () => {
+export const getReadmeTemplate = async () => {
 	const spinner = ora('Loading README template').start();
 
 	try {
@@ -128,7 +128,7 @@ const getReadmeTemplate = async () => {
 /**
  *  Render out readme content
  */
-const buildReadmeContent = async context => {
+export const buildReadmeContent = async context => {
 	const template = await getReadmeTemplate();
 	return ejs.render(template, {
 		...context,
@@ -138,7 +138,7 @@ const buildReadmeContent = async context => {
 /**
  *  Write content to README.md
  */
-const writeReadmeContent = async readmeContent => {
+export const writeReadmeContent = async readmeContent => {
 	const spinner = ora('Creating README locally').start();
 
 	try {
@@ -154,7 +154,7 @@ const writeReadmeContent = async readmeContent => {
 /**
  *  Read the workflow sample file
  */
-const getWorkflowTemplate = async () => {
+export const getWorkflowTemplate = async () => {
 	const spinner = ora('Loading sample workflow file').start();
 
 	try {
@@ -171,7 +171,7 @@ const getWorkflowTemplate = async () => {
  *  Build the workflow.yml content
  */
 
-const buildWorkflowContent = async (username, repo) => {
+export const buildWorkflowContent = async (username, repo) => {
 	// Read workflow_sample.yml
 	let workflow = await getWorkflowTemplate();
 	// Replace with user-defined values
@@ -339,7 +339,9 @@ module.exports = async _options => {
 		try {
 			({
 				body: { sha },
-			} = await ghGot(`/repos/${username}/${repo}/contents/README.md`, { token }));
+			} = await ghGot(`/repos/${username}/${repo}/contents/README.md`, {
+				token,
+			}));
 
 			// Set flag to avoid creating new repo
 			repoExists = true;
@@ -400,7 +402,11 @@ module.exports = async _options => {
 				};
 
 				try {
-					await ghGot('/user/repos', { method: 'POST', token, body: { ...repoDetails } });
+					await ghGot('/user/repos', {
+						method: 'POST',
+						token,
+						body: { ...repoDetails },
+					});
 
 					repoSpinner.succeed(`Repository '${repo}' created successfully`);
 				} catch (err) {
