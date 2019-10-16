@@ -96,7 +96,8 @@ const flashError = message => {
 const htmlEscapeTable = {
 	'>': '&gt;',
 	'<': '&lt;',
-	'|': '\\|',
+	'\n': '',
+	'[|]': '\\|',
 };
 
 /**
@@ -288,7 +289,7 @@ const stargazed = async _options => {
 				owner: { login },
 			} = item;
 			language = language || 'Others';
-			description = description ? description.htmlEscape().replace('\n', '') : '';
+			description = description ? description.htmlEscape() : '';
 			if (!(language in unordered)) {
 				unordered[language] = [];
 			}
