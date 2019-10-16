@@ -20,6 +20,7 @@ describe('Commands functional tests', () => {
 	test('should static check htmlEscapeTable mapping', async () => {
 		expect(htmlEscapeTable['>']).toBe('&gt;');
 		expect(htmlEscapeTable['<']).toBe('&lt;');
+		expect(htmlEscapeTable['|']).toBe('\|');
 	});
 	test('should show positive getReadmeTemplate() outcome', async () => {
 		const template = await getReadmeTemplate();
