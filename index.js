@@ -96,6 +96,7 @@ const flashError = message => {
 const htmlEscapeTable = {
 	'>': '&gt;',
 	'<': '&lt;',
+	'|': '\\|',
 };
 
 /**

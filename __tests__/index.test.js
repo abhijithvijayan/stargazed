@@ -18,6 +18,7 @@ describe('Commands functional tests', () => {
 	test('should static check htmlEscapeTable mapping', async () => {
 		expect(stargazed.htmlEscapeTable['>']).toBe('&gt;');
 		expect(stargazed.htmlEscapeTable['<']).toBe('&lt;');
+		expect(stargazed.htmlEscapeTable['|']).toBe('|');
 	});
 	test('should show positive getReadmeTemplate() outcome', async () => {
 		const template = await stargazed.getReadmeTemplate();
