@@ -185,7 +185,7 @@ export const buildWorkflowContent = async (username, repo) => {
 	return workflow;
 };
 
-module.exports = async _options => {
+export default async _options => {
 	const err = validate(_options);
 
 	if (err) {
