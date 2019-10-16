@@ -87,7 +87,7 @@ export const validate = _options => {
  */
 export const flashError = message => {
 	console.error(chalk.bold.red(`✖ ${message}`));
-	// process.exit(1);
+	process.exit(1);
 };
 
 /**
