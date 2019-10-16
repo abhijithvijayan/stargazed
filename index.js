@@ -18,7 +18,7 @@ const pkg = require('./package.json');
 
 const options = {};
 
-export const validate = _options => {
+const validate = _options => {
 	if (!isObject(_options)) {
 		return new TypeError(`invalid input argument. Options argument must be an object. Value: \`${_options}\`.`);
 	}
@@ -85,7 +85,7 @@ export const validate = _options => {
 /**
  *  Display Validation Errors
  */
-export const flashError = message => {
+const flashError = message => {
 	console.error(chalk.bold.red(`✖ ${message}`));
 	process.exit(1);
 };
@@ -93,7 +93,7 @@ export const flashError = message => {
 /**
  *  Escape symbol table
  */
-export const htmlEscapeTable = {
+const htmlEscapeTable = {
 	'>': '&gt;',
 	'<': '&lt;',
 };
@@ -112,7 +112,7 @@ String.prototype.htmlEscape = function() {
 /**
  *  Read the template from markdown file
  */
-export const getReadmeTemplate = async () => {
+const getReadmeTemplate = async () => {
 	const spinner = ora('Loading README template').start();
 
 	try {
@@ -128,7 +128,7 @@ export const getReadmeTemplate = async () => {
 /**
  *  Render out readme content
  */
-export const buildReadmeContent = async context => {
+const buildReadmeContent = async context => {
 	const template = await getReadmeTemplate();
 	return ejs.render(template, {
 		...context,
@@ -138,7 +138,7 @@ export const buildReadmeContent = async context => {
 /**
  *  Write content to README.md
  */
-export const writeReadmeContent = async readmeContent => {
+const writeReadmeContent = async readmeContent => {
 	const spinner = ora('Creating README locally').start();
 
 	try {
@@ -154,7 +154,7 @@ export const writeReadmeContent = async readmeContent => {
 /**
  *  Read the workflow sample file
  */
-export const getWorkflowTemplate = async () => {
+const getWorkflowTemplate = async () => {
 	const spinner = ora('Loading sample workflow file').start();
 
 	try {
@@ -171,7 +171,7 @@ export const getWorkflowTemplate = async () => {
  *  Build the workflow.yml content
  */
 
-export const buildWorkflowContent = async (username, repo) => {
+const buildWorkflowContent = async (username, repo) => {
 	// Read workflow_sample.yml
 	let workflow = await getWorkflowTemplate();
 	// Replace with user-defined values
@@ -185,7 +185,10 @@ export const buildWorkflowContent = async (username, repo) => {
 	return workflow;
 };
 
-export default async _options => {
+/**
+ *  Core function
+ */
+const stargazed = async _options => {
 	const err = validate(_options);
 
 	if (err) {
@@ -310,10 +313,13 @@ export default async _options => {
 	 */
 	const languages = Object.keys(sort ? ordered : unordered);
 	const readmeContent = await buildReadmeContent({
+		// array of languages
 		languages,
-		username,
+		// Total items count
 		count: Object.keys(list).length,
+		// Stargazed Repos
 		stargazed: sort ? ordered : unordered,
+		username,
 		date: `${new Date().getDate()}--${new Date().getMonth()}--${new Date().getFullYear()}`,
 	});
 
@@ -476,3 +482,13 @@ export default async _options => {
 		}
 	}
 };
+
+module.exports = stargazed;
+module.exports.validate = validate;
+module.exports.flashError = flashError;
+module.exports.htmlEscapeTable = htmlEscapeTable;
+module.exports.getReadmeTemplate = getReadmeTemplate;
+module.exports.buildReadmeContent = buildReadmeContent;
+module.exports.writeReadmeContent = writeReadmeContent;
+module.exports.getWorkflowTemplate = getReadmeTemplate;
+module.exports.buildWorkflowContent = buildWorkflowContent;
