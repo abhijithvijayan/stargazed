@@ -87,7 +87,7 @@ export const validate = _options => {
  */
 export const flashError = message => {
 	console.error(chalk.bold.red(`✖ ${message}`));
-	process.exit(1);
+	// process.exit(1);
 };
 
 /**
@@ -185,7 +185,7 @@ export const buildWorkflowContent = async (username, repo) => {
 	return workflow;
 };
 
-module.exports = async _options => {
+export default async _options => {
 	const err = validate(_options);
 
 	if (err) {
