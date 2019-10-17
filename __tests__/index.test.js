@@ -48,6 +48,14 @@ describe('Commands functional tests', () => {
 		expect(response.match('Vulcan')[0]).toBe('Vulcan');
 		expect(response.match('JavaScript')[0]).toBe('JavaScript');
 	});
+	test('should show that the data is mapped for workflow content', async () => {
+		const response = await buildWorkflowContent('Jean-Luc-Picard', 'mock-repository')
+
+		expect(response).toBeTruthy()
+		expect(response).toContain('cron')
+		expect(response).toContain('Jean-Luc-Picard')
+		expect(response.length > 0).toBe(true)
+	});
 	// test('should ', async () => {
 	// 	console.log(writeReadmeContent());
 	// });
