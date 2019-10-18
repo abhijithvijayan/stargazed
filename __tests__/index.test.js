@@ -1,12 +1,21 @@
-import stargazed from '..';
+import stargazed, {
+	validate,
+	flashError,
+	htmlEscapeTable,
+	getReadmeTemplate,
+	buildReadmeContent,
+	writeReadmeContent,
+	buildWorkflowContent,
+} from '..';
 import '@testing-library/jest-dom/extend-expect';
+
+import { inputContent, badInputToken, goodInputRepo, badInputUsername } from '../mock/contentInput';
 
 const pckg = require('../package.json');
 
 describe('Commands functional tests', () => {
-	test('should check basic input behavior', async () => {
-		// this function doesn't return anything
-		await stargazed({
+	test('should check basic input behavior of core function', async () => {
+		const response = await stargazed({
 			username: 'Jean-Luc-Picard',
 			token: '1701-D',
 			repo: 'Enterprise',
@@ -15,31 +24,49 @@ describe('Commands functional tests', () => {
 			workflow: true,
 			version: true,
 		});
+
+		expect(response).toBe(pckg.version);
 	});
 	test('should static check htmlEscapeTable mapping', async () => {
-		expect(stargazed.htmlEscapeTable['>']).toBe('&gt;');
-		expect(stargazed.htmlEscapeTable['<']).toBe('&lt;');
-		expect(stargazed.htmlEscapeTable['|']).toBe('\\|');
+		expect(htmlEscapeTable['>']).toBe('&gt;');
+		expect(htmlEscapeTable['<']).toBe('&lt;');
+		expect(htmlEscapeTable['[|]']).toBe('\\|');
+		expect(htmlEscapeTable['\n']).toBe('');
 	});
 	test('should show positive getReadmeTemplate() outcome', async () => {
-		const template = await stargazed.getReadmeTemplate();
+		const template = await getReadmeTemplate();
 
 		expect(template).toBeTruthy();
 		expect(template.slice(0, 9)).toBe('# Awesome');
-		expect(template.length).toBe(2180);
+		expect(template.length > 10).toBe(true);
 	});
 	test('should show positive buildReadmeContent(context) outcome', async () => {
-		await stargazed.buildReadmeContent({
-			languages: ['Klingon', 'English', 'Vulcan', 'JavaScript'],
-			username: 'Jean-Luc-Picard',
-			count: Object.keys([1, 2, 3, 4]).length,
-			stargazed: {
-				Klingon: [[1, 'URL', 'description', 'author', 1000], [2, 'URL', 'description', 'author', 2000]],
-				English: [[2, 'URL', 'description', 'author', 2000]],
-				Vulcan: [[3, 'URL', 'description', 'author', 3000]],
-				JavaScript: [[4, 'URL', 'description', 'author', 4000]],
-			},
-			date: `${new Date().getDate()}--${new Date().getMonth()}--${new Date().getFullYear()}`,
-		});
+		const response = await buildReadmeContent(inputContent);
+
+		expect(response.match('Klingon')[0]).toBe('Klingon');
+		expect(response.match('English')[0]).toBe('English');
+		expect(response.match('Vulcan')[0]).toBe('Vulcan');
+		expect(response.match('JavaScript')[0]).toBe('JavaScript');
 	});
+	test('should show that the data is mapped for workflow content', async () => {
+		const response = await buildWorkflowContent('Jean-Luc-Picard', 'mock-repository');
+
+		expect(response).toBeTruthy();
+		expect(response).toContain('cron');
+		expect(response).toContain('Jean-Luc-Picard');
+		expect(response.length > 0).toBe(true);
+	});
+	test('should check validation good input/output - positive branch return null', async () => {
+		expect(validate(goodInputRepo)).toBeNull();
+	});
+	test('should check bad inputs in validation behavior/paths', () => {
+		const badTokenRes = validate(badInputToken);
+		const fn = () => {
+			throw badTokenRes
+			}
+		expect(fn).toThrowError(new TypeError(`invalid option. Token must be a string primitive.`));
+	});
+	// test('should ', async () => {
+	// 	console.log(writeReadmeContent());
+	// });
 });

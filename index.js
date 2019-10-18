@@ -205,7 +205,7 @@ const stargazed = async _options => {
 
 	if (version) {
 		console.log(chalk.bold.green(pkg.version));
-		return;
+		return pkg.version;
 	}
 
 	if (!username) {
