@@ -10,3 +10,33 @@ export const inputContent = {
 	},
 	date: `${new Date().getDate()}--${new Date().getMonth()}--${new Date().getFullYear()}`,
 };
+
+export const badInputToken = {
+	username: 'Jean-Luc-Picard',
+	token: null,
+	repo: 'Enterprise',
+	message: 'Make it so...',
+	sort: true,
+	workflow: true,
+	version: true,
+};
+
+export const badInputUsername = {
+	username: null,
+	token: '1701-D',
+	repo: 'Enterprise',
+	message: 'Make it so...',
+	sort: true,
+	workflow: true,
+	version: true,
+};
+
+export const goodInputRepo = {
+	username: 'Jean-Luc-Picard',
+	token: '1701-D',
+	repo: 'Enterprise',
+	message: 'Make it so...',
+	sort: true,
+	workflow: true,
+	version: true,
+};

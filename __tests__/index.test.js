@@ -1,5 +1,4 @@
-import {
-	stargazed,
+import stargazed, {
 	validate,
 	flashError,
 	htmlEscapeTable,
@@ -10,22 +9,23 @@ import {
 } from '..';
 import '@testing-library/jest-dom/extend-expect';
 
-import { inputContent } from '../mock/contentInput';
+import { inputContent, badInputToken, goodInputRepo, badInputUsername } from '../mock/contentInput';
 
 const pckg = require('../package.json');
 
 describe('Commands functional tests', () => {
-	test('should check basic input behavior', async () => {
-		// this function doesn't return anything
-		// await stargazed({
-		// 	username: 'Jean-Luc-Picard',
-		// 	token: '1701-D',
-		// 	repo: 'Enterprise',
-		// 	message: 'Make it so...',
-		// 	sort: true,
-		// 	workflow: true,
-		// 	version: true,
-		// });
+	test('should check basic input behavior of core function', async () => {
+		const response = await stargazed({
+			username: 'Jean-Luc-Picard',
+			token: '1701-D',
+			repo: 'Enterprise',
+			message: 'Make it so...',
+			sort: true,
+			workflow: true,
+			version: true,
+		});
+
+		expect(response).toBe(pckg.version);
 	});
 	test('should static check htmlEscapeTable mapping', async () => {
 		expect(htmlEscapeTable['>']).toBe('&gt;');
@@ -49,12 +49,18 @@ describe('Commands functional tests', () => {
 		expect(response.match('JavaScript')[0]).toBe('JavaScript');
 	});
 	test('should show that the data is mapped for workflow content', async () => {
-		const response = await buildWorkflowContent('Jean-Luc-Picard', 'mock-repository')
+		const response = await buildWorkflowContent('Jean-Luc-Picard', 'mock-repository');
 
-		expect(response).toBeTruthy()
-		expect(response).toContain('cron')
-		expect(response).toContain('Jean-Luc-Picard')
-		expect(response.length > 0).toBe(true)
+		expect(response).toBeTruthy();
+		expect(response).toContain('cron');
+		expect(response).toContain('Jean-Luc-Picard');
+		expect(response.length > 0).toBe(true);
+	});
+	test('should check validation good input/output - positive branch return null', async () => {
+		expect(validate(goodInputRepo)).toBeNull();
+	});
+	test('should check bad inputs in validation behavior/paths', () => {
+		expect(validate(badInputToken)).toThrowError('TypeError');
 	});
 	// test('should ', async () => {
 	// 	console.log(writeReadmeContent());
