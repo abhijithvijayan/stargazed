@@ -1,15 +1,7 @@
-import stargazed, {
-	validate,
-	flashError,
-	htmlEscapeTable,
-	getReadmeTemplate,
-	buildReadmeContent,
-	writeReadmeContent,
-	buildWorkflowContent,
-} from '..';
+import stargazed, { validate, htmlEscapeTable, getReadmeTemplate, buildReadmeContent, buildWorkflowContent } from '..';
 import '@testing-library/jest-dom/extend-expect';
 
-import { inputContent, badInputToken, goodInputRepo, badInputUsername } from '../mock/contentInput';
+import { inputContent, badInputToken, goodInputRepo } from '../mock/contentInput';
 
 const pckg = require('../package.json');
 
@@ -62,11 +54,10 @@ describe('Commands functional tests', () => {
 	test('should check bad inputs in validation behavior/paths', () => {
 		const badTokenRes = validate(badInputToken);
 		const fn = () => {
-			throw badTokenRes
-			}
+			throw badTokenRes;
+		};
 		expect(fn).toThrowError(new TypeError(`invalid option. Token must be a string primitive.`));
 	});
 	// test('should ', async () => {
-	// 	console.log(writeReadmeContent());
 	// });
 });

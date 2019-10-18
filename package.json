@@ -66,5 +66,5 @@
 	"jest": {
 		"verbose": true,
 		"collectCoverage": true
-	  }
+	}
 }
