@@ -59,9 +59,13 @@ describe('Commands functional tests', () => {
 	test('should check validation good input/output - positive branch return null', async () => {
 		expect(validate(goodInputRepo)).toBeNull();
 	});
-	// test('should check bad inputs in validation behavior/paths', () => {
-	// 	expect(validate(badInputToken)).toThrowError('[TypeError: invalid option. Token must be a string primitive.]');
-	// });
+	test('should check bad inputs in validation behavior/paths', () => {
+		const badTokenRes = validate(badInputToken);
+		const fn = () => {
+			throw badTokenRes
+			}
+		expect(fn).toThrowError(new TypeError(`invalid option. Token must be a string primitive.`));
+	});
 	// test('should ', async () => {
 	// 	console.log(writeReadmeContent());
 	// });
