@@ -1,0 +1,18 @@
+version = 1
+
+[merge]
+automerge_label = "bot: merge on green"
+blacklist_title_regex = "^WIP.*"
+blacklist_labels = ["status: WIP", "breaking change"]
+method = "merge"
+delete_branch_on_merge = true
+block_on_reviews_requested = true
+notify_on_conflict = true
+optimistic_updates = true
+
+[merge.message]
+title = "github_default"
+body = "github_default"
+include_pr_number = true
+body_type = "markdown"
+strip_html_comments = false
