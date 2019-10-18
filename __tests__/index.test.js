@@ -1,17 +1,20 @@
 import stargazed, {
 	validate,
-	flashError,
+	// flashError,
 	htmlEscapeTable,
 	getReadmeTemplate,
 	buildReadmeContent,
-	writeReadmeContent,
+	// writeReadmeContent,
 	buildWorkflowContent,
 } from '..';
 import '@testing-library/jest-dom/extend-expect';
 
-import { inputContent, badInputToken, goodInputRepo, badInputUsername } from '../mock/contentInput';
+import { inputContent, badInputToken, goodInputValidation, badInputUsername } from '../mock/contentInput';
 
 const pckg = require('../package.json');
+
+//! flashError cannot be tested currently due to process.exit
+// ? research a way to test something as it exits?
 
 describe('Commands functional tests', () => {
 	test('should check basic input behavior of core function', async () => {
@@ -57,16 +60,28 @@ describe('Commands functional tests', () => {
 		expect(response.length > 0).toBe(true);
 	});
 	test('should check validation good input/output - positive branch return null', async () => {
-		expect(validate(goodInputRepo)).toBeNull();
+		expect(validate(goodInputValidation)).toBeNull();
 	});
 	test('should check bad inputs in validation behavior/paths', () => {
-		const badTokenRes = validate(badInputToken);
-		const fn = () => {
-			throw badTokenRes
-			}
-		expect(fn).toThrowError(new TypeError(`invalid option. Token must be a string primitive.`));
+		const badTokenRes = () => {
+			throw validate(badInputToken);
+		};
+		expect(badTokenRes).toThrowError(new TypeError(`invalid option. Token must be a string primitive.`));
+		// TODO: ADD MORE ERROR PATHS FROM validate()
+		const badUsernameRes = () => {
+			throw validate(badInputUsername);
+		};
+		expect(badUsernameRes).toThrowError(new TypeError(`invalid option. Username must be a string primitive.`));
+
+		// const badValues = () => {
+		// 	Array(7).map(e => {
+		// 		return validate(e);
+		// 	});
+		// };
 	});
+
 	// test('should ', async () => {
-	// 	console.log(writeReadmeContent());
+	// Testing this function locally affects README.md
+	// console.log(await writeReadmeContent());
 	// });
 });

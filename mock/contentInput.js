@@ -31,7 +31,7 @@ export const badInputUsername = {
 	version: true,
 };
 
-export const goodInputRepo = {
+export const goodInputValidation = {
 	username: 'Jean-Luc-Picard',
 	token: '1701-D',
 	repo: 'Enterprise',
