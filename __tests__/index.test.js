@@ -1,9 +1,28 @@
-import stargazed, { validate, htmlEscapeTable, getReadmeTemplate, buildReadmeContent, buildWorkflowContent } from '..';
 import '@testing-library/jest-dom/extend-expect';
+import stargazed, {
+	validate,
+	// flashError,
+	htmlEscapeTable,
+	getReadmeTemplate,
+	buildReadmeContent,
+	// writeReadmeContent,
+	buildWorkflowContent,
+} from '..';
 
-import { inputContent, badInputToken, goodInputRepo } from '../mock/contentInput';
+import {
+	inputContent,
+	badInputToken,
+	goodInputValidation,
+	badInputUsername,
+	// goodInputFalseValidation,
+	badInputRepo,
+	badInputMessage,
+} from '../mock/contentInput';
 
 const pckg = require('../package.json');
+
+//! flashError cannot be tested currently due to process.exit
+// ? research a way to test something as it exits?
 
 describe('Commands functional tests', () => {
 	test('should check basic input behavior of core function', async () => {
@@ -49,15 +68,30 @@ describe('Commands functional tests', () => {
 		expect(response.length > 0).toBe(true);
 	});
 	test('should check validation good input/output - positive branch return null', async () => {
-		expect(validate(goodInputRepo)).toBeNull();
+		expect(validate(goodInputValidation)).toBeNull();
 	});
-	test('should check bad inputs in validation behavior/paths', () => {
-		const badTokenRes = validate(badInputToken);
-		const fn = () => {
-			throw badTokenRes;
-		};
-		expect(fn).toThrowError(new TypeError(`invalid option. Token must be a string primitive.`));
-	});
-	// test('should ', async () => {
+
+	// test('should check validation good input with all false options - positive branch return null', async () => {
+	// 	expect(validate(goodInputFalseValidation)).toBeNull();
 	// });
+	test('should check bad inputs in validation behavior/paths', () => {
+		const badTokenRes = () => {
+			throw validate(badInputToken);
+		};
+		expect(badTokenRes).toThrowError(new TypeError(`invalid option. Token must be a string primitive.`));
+
+		const badUsernameRes = () => {
+			throw validate(badInputUsername);
+		};
+		expect(badUsernameRes).toThrowError(new TypeError(`invalid option. Username must be a string primitive.`));
+
+		const badRepoRes = () => {
+			throw validate(badInputRepo);
+		};
+		expect(badRepoRes).toThrowError(new TypeError('invalid option. Repo name must be a string primitive.'));
+		const badMessageRes = () => {
+			throw validate(badInputMessage);
+		};
+		expect(badMessageRes).toThrowError(new TypeError('invalid option. Commit message must be a string primitive.'));
+	});
 });
