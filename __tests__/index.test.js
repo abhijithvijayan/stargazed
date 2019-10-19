@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+import '@testing-library/jest-dom/extend-expect';
 import stargazed, {
 	validate,
 	// flashError,
@@ -8,23 +8,16 @@ import stargazed, {
 	// writeReadmeContent,
 	buildWorkflowContent,
 } from '..';
-import '@testing-library/jest-dom/extend-expect';
 
 import {
 	inputContent,
 	badInputToken,
 	goodInputValidation,
 	badInputUsername,
-	goodInputFalseValidation,
+	// goodInputFalseValidation,
 	badInputRepo,
 	badInputMessage,
 } from '../mock/contentInput';
-=======
-import stargazed, { validate, htmlEscapeTable, getReadmeTemplate, buildReadmeContent, buildWorkflowContent } from '..';
-import '@testing-library/jest-dom/extend-expect';
-
-import { inputContent, badInputToken, goodInputRepo } from '../mock/contentInput';
->>>>>>> 6b70a9eaee07d41ea11b9893426977654cddd9d3
 
 const pckg = require('../package.json');
 
@@ -101,6 +94,4 @@ describe('Commands functional tests', () => {
 		};
 		expect(badMessageRes).toThrowError(new TypeError('invalid option. Commit message must be a string primitive.'));
 	});
-
-	
 });
