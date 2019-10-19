@@ -2,7 +2,7 @@
 
 > Creating your own Awesome List of GitHub Stars!
 
-[![NPM](https://nodei.co/npm/stargazed.png?downloads=true&stars=true)](https://nodei.co/npm/stargazed/)
+[![Build Status](https://travis-ci.com/abhijithvijayan/stargazed.svg?branch=master)](https://travis-ci.com/abhijithvijayan/stargazed)
 
 ## Install
 

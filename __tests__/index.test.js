@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import stargazed, {
 	validate,
 	// flashError,
@@ -18,6 +19,12 @@ import {
 	badInputRepo,
 	badInputMessage,
 } from '../mock/contentInput';
+=======
+import stargazed, { validate, htmlEscapeTable, getReadmeTemplate, buildReadmeContent, buildWorkflowContent } from '..';
+import '@testing-library/jest-dom/extend-expect';
+
+import { inputContent, badInputToken, goodInputRepo } from '../mock/contentInput';
+>>>>>>> 6b70a9eaee07d41ea11b9893426977654cddd9d3
 
 const pckg = require('../package.json');
 
@@ -71,7 +78,7 @@ describe('Commands functional tests', () => {
 		expect(validate(goodInputValidation)).toBeNull();
 	});
 
-	// test('should check validation good input/output - positive branch return null', async () => {
+	// test('should check validation good input with all false options - positive branch return null', async () => {
 	// 	expect(validate(goodInputFalseValidation)).toBeNull();
 	// });
 	test('should check bad inputs in validation behavior/paths', () => {
