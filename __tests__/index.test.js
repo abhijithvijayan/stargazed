@@ -9,7 +9,15 @@ import stargazed, {
 } from '..';
 import '@testing-library/jest-dom/extend-expect';
 
-import { inputContent, badInputToken, goodInputValidation, badInputUsername } from '../mock/contentInput';
+import {
+	inputContent,
+	badInputToken,
+	goodInputValidation,
+	badInputUsername,
+	goodInputFalseValidation,
+	badInputRepo,
+	badInputMessage,
+} from '../mock/contentInput';
 
 const pckg = require('../package.json');
 
@@ -62,26 +70,30 @@ describe('Commands functional tests', () => {
 	test('should check validation good input/output - positive branch return null', async () => {
 		expect(validate(goodInputValidation)).toBeNull();
 	});
+
+	// test('should check validation good input/output - positive branch return null', async () => {
+	// 	expect(validate(goodInputFalseValidation)).toBeNull();
+	// });
 	test('should check bad inputs in validation behavior/paths', () => {
 		const badTokenRes = () => {
 			throw validate(badInputToken);
 		};
 		expect(badTokenRes).toThrowError(new TypeError(`invalid option. Token must be a string primitive.`));
-		// TODO: ADD MORE ERROR PATHS FROM validate()
+
 		const badUsernameRes = () => {
 			throw validate(badInputUsername);
 		};
 		expect(badUsernameRes).toThrowError(new TypeError(`invalid option. Username must be a string primitive.`));
 
-		// const badValues = () => {
-		// 	Array(7).map(e => {
-		// 		return validate(e);
-		// 	});
-		// };
+		const badRepoRes = () => {
+			throw validate(badInputRepo);
+		};
+		expect(badRepoRes).toThrowError(new TypeError('invalid option. Repo name must be a string primitive.'));
+		const badMessageRes = () => {
+			throw validate(badInputMessage);
+		};
+		expect(badMessageRes).toThrowError(new TypeError('invalid option. Commit message must be a string primitive.'));
 	});
 
-	// test('should ', async () => {
-	// Testing this function locally affects README.md
-	// console.log(await writeReadmeContent());
-	// });
+	
 });
