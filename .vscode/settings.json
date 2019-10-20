@@ -1,0 +1,5 @@
+{
+    "markdownlint.ignore": [
+        "template.md"
+    ]
+}
