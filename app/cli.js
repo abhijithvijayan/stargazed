@@ -165,6 +165,28 @@ const fetchUserStargazedRepos = async ({ spinner, username, token, list = [], pa
 	return { list: entries };
 };
 
+const parseStargazedList = ({ list, unordered }) => {
+	return list.forEach(item => {
+		let {
+			name,
+			description,
+			html_url,
+			language,
+			stargazers_count,
+			owner: { login },
+		} = item;
+
+		language = language || 'Others';
+		description = description ? description.htmlEscape() : '';
+
+		if (!(language in unordered)) {
+			unordered[language] = [];
+		}
+
+		unordered[language].push([name, html_url, description.trim(), login, stargazers_count]);
+	});
+};
+
 /**
  *  Core function
  */
@@ -228,27 +250,7 @@ const stargazed = async _options => {
 	 *  Parse and save object
 	 */
 	if (Array.isArray(list)) {
-		list.map(item => {
-			let {
-				name,
-				description,
-				html_url,
-				language,
-				stargazers_count,
-				owner: { login },
-			} = item;
-			language = language || 'Others';
-			description = description ? description.htmlEscape() : '';
-
-			if (!(language in unordered)) {
-				unordered[language] = [];
-			}
-
-			// push item into array
-			unordered[language].push([name, html_url, description.trim(), login, stargazers_count]);
-
-			return null;
-		});
+		await parseStargazedList({ list, unordered });
 	}
 
 	/**
