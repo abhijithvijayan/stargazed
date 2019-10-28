@@ -1,8 +1,11 @@
-const ghGot = require('gh-got');
+const path = require('path');
 const chalk = require('chalk');
+const ghGot = require('gh-got');
 
 const Spinner = require('./spinner');
-const { EMPTY_REPO_MESSAGE } = require('./constants');
+const { flashError } = require('./message');
+const { readFileAsync } = require('./fs.js');
+const { EMPTY_REPO_MESSAGE, SHA_NOT_SUPPLIED_ERROR } = require('./constants');
 
 /**
  *  Function to find if repo is empty / readme exists
@@ -160,10 +163,92 @@ const handleRepositoryActions = async ({ username, repo, token, message, readmeC
 	}
 };
 
+/**
+ *  Read the workflow sample file
+ */
+const getWorkflowTemplate = async () => {
+	const spinner = new Spinner('Loading sample workflow file');
+	spinner.start();
+
+	try {
+		const sample = await readFileAsync(path.resolve(__dirname, '../templates', './workflow.yml'), 'utf8');
+
+		spinner.succeed('workflow.yml loaded');
+
+		return sample;
+	} catch (err) {
+		spinner.fail('workflow.yml loading failed!');
+		flashError(err);
+	} finally {
+		spinner.stop();
+	}
+};
+
+/**
+ *  Build the workflow.yml content
+ */
+const buildWorkflowContent = async (username, repo) => {
+	// Read workflow.yml
+	let workflow = await getWorkflowTemplate();
+
+	// Replace with user-defined values
+	const mapObj = {
+		'{{USERNAME}}': username,
+		'{{REPO}}': repo,
+	};
+
+	workflow = workflow.replace(/{{USERNAME}}|{{REPO}}/gi, function(matched) {
+		return `"${mapObj[matched]}"`;
+	});
+
+	return workflow;
+};
+
+/**
+ *  Handle setting up GitHub actions workflow
+ */
+const setUpWorkflow = async ({ username, repo, token }) => {
+	const spinner = new Spinner('Setting up cron job for GitHub Actions...');
+	spinner.start();
+
+	const workflowContent = await buildWorkflowContent(username, repo);
+
+	// String to base64
+	const workflowBuffer = await Buffer.from(workflowContent, 'utf8').toString('base64');
+
+	// Create .github/workflows/workflow.yml file
+	try {
+		// Create README.md
+		await ghGot(`/repos/${username}/${repo}/contents/.github/workflows/workflow.yml`, {
+			method: 'PUT',
+			token,
+			body: {
+				message: 'Set up GitHub workflow for daily auto-update',
+				content: workflowBuffer,
+			},
+		});
+
+		spinner.succeed('Setup GitHub Actions workflow success');
+	} catch (err) {
+		if (err.body) {
+			// GitHub returns this error if file already exist
+			if (err.body.message === SHA_NOT_SUPPLIED_ERROR) {
+				spinner.info(chalk.default('GitHub workflow already setup for the repo!'));
+			} else {
+				spinner.fail(chalk.default(err.body.message));
+			}
+		}
+	} finally {
+		spinner.stop();
+	}
+};
+
 module.exports = {
 	checkIfReadmeExist,
 	updateRepositoryReadme,
 	createRepository,
 	uploadReadmeToRepository,
 	handleRepositoryActions,
+	buildWorkflowContent,
+	setUpWorkflow,
 };
