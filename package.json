@@ -20,7 +20,8 @@
 		"lint": "eslint .",
 		"lint:fix": "eslint . --fix",
 		"test": "jest",
-		"pack:list": "npm pack && tar -xvzf *.tgz && rm -rf package *.tgz"
+		"pack:list": "npm pack && tar -xvzf *.tgz && rm -rf package *.tgz",
+		"prepare": "rm -rf README.md"
 	},
 	"husky": {
 		"hooks": {
