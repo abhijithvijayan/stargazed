@@ -226,7 +226,95 @@ const checkIfReadmeExist = async ({ username, repo, token }) => {
 			// spinner.fail(chalk.default(err.body.message));
 		}
 	}
+
 	return { sha, repoExists, isRepoEmpty };
+};
+
+/**
+ *  Update upstream README.md
+ */
+const updateRepositoryReadme = async ({ username, repo, token, message, contentBuffer, sha }) => {
+	const spinner = new Spinner('Updating repository...');
+	spinner.start();
+
+	try {
+		await ghGot(`/repos/${username}/${repo}/contents/README.md`, {
+			method: 'PUT',
+			token,
+			body: {
+				message: message || 'update stars by stargazed',
+				content: contentBuffer,
+				sha,
+			},
+		});
+
+		spinner.succeed('Update to repository successful!');
+	} catch (err) {
+		if (err.body) {
+			spinner.fail(chalk.default(err.body.message));
+		}
+	}
+
+	spinner.stop();
+};
+
+/**
+ *  Create a upstream repository with metadata
+ */
+const createRepository = async ({ repo, token }) => {
+	const spinner = new Spinner('Creating new repository...');
+	spinner.start();
+
+	const repoDetails = {
+		name: repo,
+		description: 'A curated list of my GitHub stars by stargazed',
+		homepage: 'https://github.com/abhijithvijayan/stargazed',
+		private: true,
+		has_projects: false,
+		has_issues: false,
+		has_wiki: false,
+	};
+
+	try {
+		await ghGot('/user/repos', {
+			method: 'POST',
+			token,
+			body: { ...repoDetails },
+		});
+
+		spinner.succeed(`Repository '${repo}' created successfully`);
+	} catch (err) {
+		spinner.info(chalk.default(err.body && err.body.message));
+	}
+
+	spinner.stop();
+};
+
+/**
+ *  Create a new README.md file in repository
+ */
+const uploadReadmeToRepository = async ({ username, repo, token, message, contentBuffer }) => {
+	const spinner = new Spinner('Uploading README file...');
+	spinner.start();
+
+	try {
+		await ghGot(`/repos/${username}/${repo}/contents/README.md`, {
+			method: 'PUT',
+			token,
+			body: {
+				message: message || 'initial commit from stargazed',
+				content: contentBuffer,
+			},
+		});
+
+		spinner.succeed('README file uploaded successfully');
+	} catch (err) {
+		if (err.body) {
+			spinner.fail(chalk.default(err.body.message));
+		}
+	}
+
+	spinner.stop();
 };
 
 /**
@@ -328,7 +416,7 @@ const stargazed = async _options => {
 	await writeReadmeContent(readmeContent);
 
 	/**
-	 *  Handles Repo actions
+	 *  Handles all the repo actions
 	 */
 	if (gitStatus) {
 		const { sha, repoExists, isRepoEmpty } = await checkIfReadmeExist({
@@ -344,28 +432,7 @@ const stargazed = async _options => {
 		 *  Update README on the upstream repo
 		 */
 		if (sha && !isRepoEmpty) {
-			spinner.start('Updating repository...');
-
-			try {
-				// Update README.md
-				await ghGot(`/repos/${username}/${repo}/contents/README.md`, {
-					method: 'PUT',
-					token,
-					body: {
-						message: message || 'update stars by stargazed',
-						content: contentBuffer,
-						sha,
-					},
-				});
-
-				spinner.succeed('Update to repository successful!');
-			} catch (err) {
-				if (err.body) {
-					spinner.fail(chalk.default(err.body.message));
-				}
-			}
-
-			spinner.stop();
+			await updateRepositoryReadme({ username, repo, token, message, contentBuffer, sha });
 		}
 
 		if (!repoExists || isRepoEmpty) {
@@ -373,57 +440,13 @@ const stargazed = async _options => {
 			 *  Create new Repository
 			 */
 			if (!repoExists) {
-				spinner.start('Creating new repository...');
-
-				const repoDetails = {
-					name: repo,
-					description: 'A curated list of my GitHub stars by stargazed',
-					homepage: 'https://github.com/abhijithvijayan/stargazed',
-					private: false,
-					has_projects: false,
-					has_issues: false,
-					has_wiki: false,
-				};
-
-				try {
-					await ghGot('/user/repos', {
-						method: 'POST',
-						token,
-						body: { ...repoDetails },
-					});
-
-					spinner.succeed(`Repository '${repo}' created successfully`);
-				} catch (err) {
-					spinner.info(chalk.default(err.body && err.body.message));
-				}
-
-				spinner.stop();
+				await createRepository({ repo, token });
 			}
 
 			/**
 			 *  Upload file if repo doesn't exist or is empty
 			 */
-			spinner.start('Uploading README file...');
-
-			try {
-				// Create README.md
-				await ghGot(`/repos/${username}/${repo}/contents/README.md`, {
-					method: 'PUT',
-					token,
-					body: {
-						message: message || 'initial commit from stargazed',
-						content: contentBuffer,
-					},
-				});
-
-				spinner.succeed('README file uploaded successfully');
-			} catch (err) {
-				if (err.body) {
-					spinner.fail(chalk.default(err.body.message));
-				}
-			}
-
-			spinner.stop();
+			await uploadReadmeToRepository({ username, repo, token, message, contentBuffer });
 		}
 
 		/**
