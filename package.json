@@ -16,7 +16,8 @@
 	"scripts": {
 		"lint": "eslint .",
 		"lint:fix": "eslint . --fix",
-		"test": "jest"
+		"test": "jest",
+		"pack:list": "npm pack && tar -xvzf *.tgz && rm -rf package *.tgz"
 	},
 	"husky": {
 		"hooks": {
