@@ -2,7 +2,7 @@ const ghGot = require('gh-got');
 const chalk = require('chalk');
 
 const Spinner = require('./spinner');
-const { EMPTY_REPO_MESSAGE } = require('./message');
+const { EMPTY_REPO_MESSAGE } = require('./constants');
 
 /**
  *  Function to find if repo is empty / readme exists
