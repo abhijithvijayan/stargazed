@@ -8,10 +8,11 @@ const ghGot = require('gh-got');
 const chalk = require('chalk');
 const unescape = require('lodash.unescape');
 
-const Spinner = require('./utils/spinner');
 const pkg = require('../package.json');
+const Spinner = require('./utils/spinner');
 const { flashError } = require('./utils/message');
 const validateArguments = require('./utils/validate');
+const { EMPTY_REPO_MESSAGE } = require('./utils/constants');
 const { readFileAsync, writeFileAsync } = require('./utils/fs');
 
 // User-input argument options
@@ -165,6 +166,9 @@ const fetchUserStargazedRepos = async ({ spinner, username, token, list = [], pa
 	return { list: entries };
 };
 
+/**
+ *  stargazed repo list parser
+ */
 const parseStargazedList = ({ list, unordered }) => {
 	return list.forEach(item => {
 		let {
@@ -188,7 +192,45 @@ const parseStargazedList = ({ list, unordered }) => {
 };
 
 /**
- *  Core function
+ *  Function to find if repo is empty / readme exists
+ */
+const checkIfReadmeExist = async ({ username, repo, token }) => {
+	const spinner = new Spinner(`Checking if repository '${repo}' exists...`);
+	spinner.start();
+
+	let sha = null;
+	let repoExists = false;
+	let isRepoEmpty = false;
+
+	/**
+	 *  Get sha of README.md if it exist
+	 */
+	try {
+		({
+			body: { sha },
+		} = await ghGot(`/repos/${username}/${repo}/contents/README.md`, {
+			token,
+		}));
+
+		// Set flag to avoid creating new repo
+		repoExists = true;
+
+		spinner.info('Repository found!');
+		spinner.stop();
+	} catch (err) {
+		if (err.body) {
+			if (err.body.message === EMPTY_REPO_MESSAGE) {
+				repoExists = true;
+				isRepoEmpty = true;
+			}
+			// spinner.fail(chalk.default(err.body.message));
+		}
+	}
+	return { sha, repoExists, isRepoEmpty };
+};
+
+/**
+ *  Core Driver function
  */
 const stargazed = async _options => {
 	const err = validateArguments(_options);
@@ -237,7 +279,7 @@ const stargazed = async _options => {
 	const unordered = {};
 	const ordered = {};
 
-	let spinner = new Spinner('Fetching stargazed repositories...');
+	const spinner = new Spinner('Fetching stargazed repositories...');
 	spinner.start();
 
 	// API Calling function
@@ -286,42 +328,17 @@ const stargazed = async _options => {
 	await writeReadmeContent(readmeContent);
 
 	/**
-	 *  Handle Repo actions
+	 *  Handles Repo actions
 	 */
 	if (gitStatus) {
-		spinner = new Spinner(`Checking if repository '${repo}' exists...`);
-		spinner.start();
+		const { sha, repoExists, isRepoEmpty } = await checkIfReadmeExist({
+			username,
+			repo,
+			token,
+		});
 
-		let repoExists = false;
-		let isRepoEmpty = false;
-		let sha = null;
-
+		// Content to write (base-64)
 		const contentBuffer = await Buffer.from(unescape(readmeContent), 'utf8').toString('base64');
-
-		/**
-		 *  Get sha of README.md if it exist
-		 */
-		try {
-			({
-				body: { sha },
-			} = await ghGot(`/repos/${username}/${repo}/contents/README.md`, {
-				token,
-			}));
-
-			// Set flag to avoid creating new repo
-			repoExists = true;
-
-			spinner.info('Repository found!');
-			spinner.stop();
-		} catch (err) {
-			if (err.body) {
-				if (err.body.message === 'This repository is empty.') {
-					repoExists = true;
-					isRepoEmpty = true;
-				}
-				// spinner.fail(chalk.default(err.body.message));
-			}
-		}
 
 		/**
 		 *  Update README on the upstream repo
