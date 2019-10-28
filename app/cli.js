@@ -2,18 +2,19 @@
  *  @author abhijithvijayan <abhijithvijayan.in>
  */
 
-const ora = require('ora');
 const ejs = require('ejs');
 const path = require('path');
 const ghGot = require('gh-got');
 const chalk = require('chalk');
 const unescape = require('lodash.unescape');
 
+const Spinner = require('./utils/spinner');
 const pkg = require('../package.json');
 const { flashError } = require('./utils/message');
 const validateArguments = require('./utils/validate');
 const { readFileAsync, writeFileAsync } = require('./utils/fs');
 
+// User-input argument options
 const options = {};
 
 /**
@@ -43,7 +44,7 @@ String.prototype.htmlEscape = function() {
  *  Read the template from markdown file
  */
 const getReadmeTemplate = async () => {
-	const spinner = ora('Loading README template');
+	const spinner = new Spinner('Loading README template');
 	spinner.start();
 
 	try {
@@ -56,6 +57,8 @@ const getReadmeTemplate = async () => {
 		spinner.fail('README template loading failed!');
 		flashError(err);
 	}
+
+	spinner.stop();
 };
 
 /**
@@ -73,7 +76,7 @@ const buildReadmeContent = async context => {
  *  Write content to README.md
  */
 const writeReadmeContent = async readmeContent => {
-	const spinner = ora('Creating README locally');
+	const spinner = new Spinner('Creating README locally');
 	spinner.start();
 
 	try {
@@ -92,7 +95,7 @@ const writeReadmeContent = async readmeContent => {
  *  Read the workflow sample file
  */
 const getWorkflowTemplate = async () => {
-	const spinner = ora('Loading sample workflow file');
+	const spinner = new Spinner('Loading sample workflow file');
 	spinner.start();
 
 	try {
@@ -105,6 +108,8 @@ const getWorkflowTemplate = async () => {
 		spinner.fail('workflow.yml loading failed!');
 		flashError(err);
 	}
+
+	spinner.stop();
 };
 
 /**
@@ -210,7 +215,7 @@ const stargazed = async _options => {
 	const unordered = {};
 	const ordered = {};
 
-	const spinner = ora('Fetching stargazed repositories...');
+	let spinner = new Spinner('Fetching stargazed repositories...');
 	spinner.start();
 
 	// API Calling function
@@ -282,8 +287,8 @@ const stargazed = async _options => {
 	 *  Handle Repo actions
 	 */
 	if (gitStatus) {
-		const repoSpinner = ora(`Checking if repository '${repo}' exists...`);
-		repoSpinner.start();
+		spinner = new Spinner(`Checking if repository '${repo}' exists...`);
+		spinner.start();
 
 		let repoExists = false;
 		let isRepoEmpty = false;
@@ -304,15 +309,15 @@ const stargazed = async _options => {
 			// Set flag to avoid creating new repo
 			repoExists = true;
 
-			repoSpinner.info('Repository found!');
-			repoSpinner.stop();
+			spinner.info('Repository found!');
+			spinner.stop();
 		} catch (err) {
 			if (err.body) {
 				if (err.body.message === 'This repository is empty.') {
 					repoExists = true;
 					isRepoEmpty = true;
 				}
-				// repoSpinner.fail(chalk.default(err.body.message));
+				// spinner.fail(chalk.default(err.body.message));
 			}
 		}
 
@@ -320,7 +325,7 @@ const stargazed = async _options => {
 		 *  Update README on the upstream repo
 		 */
 		if (sha && !isRepoEmpty) {
-			repoSpinner.start('Updating repository...');
+			spinner.start('Updating repository...');
 
 			try {
 				// Update README.md
@@ -334,14 +339,14 @@ const stargazed = async _options => {
 					},
 				});
 
-				repoSpinner.succeed('Update to repository successful!');
+				spinner.succeed('Update to repository successful!');
 			} catch (err) {
 				if (err.body) {
-					repoSpinner.fail(chalk.default(err.body.message));
+					spinner.fail(chalk.default(err.body.message));
 				}
 			}
 
-			repoSpinner.stop();
+			spinner.stop();
 		}
 
 		if (!repoExists || isRepoEmpty) {
@@ -349,7 +354,7 @@ const stargazed = async _options => {
 			 *  Create new Repository
 			 */
 			if (!repoExists) {
-				repoSpinner.start('Creating new repository...');
+				spinner.start('Creating new repository...');
 
 				const repoDetails = {
 					name: repo,
@@ -368,18 +373,18 @@ const stargazed = async _options => {
 						body: { ...repoDetails },
 					});
 
-					repoSpinner.succeed(`Repository '${repo}' created successfully`);
+					spinner.succeed(`Repository '${repo}' created successfully`);
 				} catch (err) {
-					repoSpinner.info(chalk.default(err.body && err.body.message));
+					spinner.info(chalk.default(err.body && err.body.message));
 				}
 
-				repoSpinner.stop();
+				spinner.stop();
 			}
 
 			/**
 			 *  Upload file if repo doesn't exist or is empty
 			 */
-			repoSpinner.start('Uploading README file...');
+			spinner.start('Uploading README file...');
 
 			try {
 				// Create README.md
@@ -392,21 +397,21 @@ const stargazed = async _options => {
 					},
 				});
 
-				repoSpinner.succeed('README file uploaded successfully');
+				spinner.succeed('README file uploaded successfully');
 			} catch (err) {
 				if (err.body) {
-					repoSpinner.fail(chalk.default(err.body.message));
+					spinner.fail(chalk.default(err.body.message));
 				}
 			}
 
-			repoSpinner.stop();
+			spinner.stop();
 		}
 
 		/**
 		 *  Setup GitHub Actions for Daily AutoUpdate
 		 */
 		if (cronJob) {
-			repoSpinner.start('Setting up cron job for GitHub Actions...');
+			spinner.start('Setting up cron job for GitHub Actions...');
 
 			const workflowContent = await buildWorkflowContent(username, repo);
 
@@ -425,19 +430,19 @@ const stargazed = async _options => {
 					},
 				});
 
-				repoSpinner.succeed('Setup GitHub Actions workflow success');
+				spinner.succeed('Setup GitHub Actions workflow success');
 			} catch (err) {
 				if (err.body) {
 					// GitHub returns this error if file already exist
 					if (err.body.message === 'Invalid request.\n\n"sha" wasn\'t supplied.') {
-						repoSpinner.info(chalk.default('GitHub workflow already setup for the repo!'));
+						spinner.info(chalk.default('GitHub workflow already setup for the repo!'));
 					} else {
-						repoSpinner.fail(chalk.default(err.body.message));
+						spinner.fail(chalk.default(err.body.message));
 					}
 				}
 			}
 
-			repoSpinner.stop();
+			spinner.stop();
 		}
 	}
 };
