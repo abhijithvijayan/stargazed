@@ -11,17 +11,10 @@ const { promisify } = require('util');
 const unescape = require('lodash.unescape');
 
 const pkg = require('../package.json');
+const { flashError } = require('./utils/message');
 const validateArguments = require('./utils/validate');
 
 const options = {};
-
-/**
- *  Display Validation Errors
- */
-const flashError = message => {
-	console.error(chalk.bold.red(`✖ ${message}`));
-	process.exit(1);
-};
 
 /**
  *  Escape symbol table
@@ -139,7 +132,7 @@ const stargazed = async _options => {
 	let cronJob = false;
 
 	if (version) {
-		console.log(chalk.bold.green(pkg.version));
+		console.log(chalk.default(pkg.version));
 		return;
 	}
 
