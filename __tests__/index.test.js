@@ -4,12 +4,12 @@ import stargazed, {
 	getReadmeTemplate,
 	buildReadmeContent,
 	// writeReadmeContent,
-} from '../app/cli';
+} from '../lib/cli';
 
-import { buildWorkflowContent } from '../app/utils/repo';
+import { buildWorkflowContent } from '../lib/utils/repo';
 
-// import { flashError } from '../app/utils/message';
-import validate from '../app/utils/validate';
+// import { flashError } from '../lib/utils/message';
+import validate from '../lib/utils/validate';
 
 import {
 	inputContent,
@@ -40,7 +40,7 @@ describe('Commands functional tests', () => {
 
 		expect(response).toBe(pckg.version);
 	});
-	test('should static check htmlEscapeTable mapping', async () => {
+	test('should static check htmlEscapeTable mlibing', async () => {
 		expect(htmlEscapeTable['>']).toBe('&gt;');
 		expect(htmlEscapeTable['<']).toBe('&lt;');
 		expect(htmlEscapeTable['[|]']).toBe('\\|');
@@ -61,7 +61,7 @@ describe('Commands functional tests', () => {
 		expect(response.match('Vulcan')[0]).toBe('Vulcan');
 		expect(response.match('JavaScript')[0]).toBe('JavaScript');
 	});
-	test('should show that the data is mapped for workflow content', async () => {
+	test('should show that the data is mlibed for workflow content', async () => {
 		const response = await buildWorkflowContent('Jean-Luc-Picard', 'mock-repository');
 
 		expect(response).toBeTruthy();
