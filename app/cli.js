@@ -319,6 +319,7 @@ const uploadReadmeToRepository = async ({ username, repo, token, message, conten
 
 const setUpWorkflow = async ({ username, repo, token }) => {
 	const spinner = new Spinner('Setting up cron job for GitHub Actions...');
+	spinner.start();
 
 	const workflowContent = await buildWorkflowContent(username, repo);
 
@@ -350,6 +351,35 @@ const setUpWorkflow = async ({ username, repo, token }) => {
 	}
 
 	spinner.stop();
+};
+
+const handleRepositoryActions = async ({ username, repo, token, message, readmeContent }) => {
+	const { sha, repoExists, isRepoEmpty } = await checkIfReadmeExist({
+		username,
+		repo,
+		token,
+	});
+
+	// Content to write (base-64)
+	const contentBuffer = await Buffer.from(unescape(readmeContent), 'utf8').toString('base64');
+
+	if (sha && !isRepoEmpty) {
+		await updateRepositoryReadme({ username, repo, token, message, contentBuffer, sha });
+	}
+
+	if (!repoExists || isRepoEmpty) {
+		/**
+		 *  Create new Repository
+		 */
+		if (!repoExists) {
+			await createRepository({ repo, token });
+		}
+
+		/**
+		 *  Upload file if repo doesn't exist or is empty
+		 */
+		await uploadReadmeToRepository({ username, repo, token, message, contentBuffer });
+	}
 };
 
 /**
@@ -454,42 +484,14 @@ const stargazed = async _options => {
 	 *  Handles all the repo actions
 	 */
 	if (gitStatus) {
-		const { sha, repoExists, isRepoEmpty } = await checkIfReadmeExist({
-			username,
-			repo,
-			token,
-		});
+		await handleRepositoryActions({ username, repo, token, message, readmeContent });
+	}
 
-		// Content to write (base-64)
-		const contentBuffer = await Buffer.from(unescape(readmeContent), 'utf8').toString('base64');
-
-		/**
-		 *  Update README on the upstream repo
-		 */
-		if (sha && !isRepoEmpty) {
-			await updateRepositoryReadme({ username, repo, token, message, contentBuffer, sha });
-		}
-
-		if (!repoExists || isRepoEmpty) {
-			/**
-			 *  Create new Repository
-			 */
-			if (!repoExists) {
-				await createRepository({ repo, token });
-			}
-
-			/**
-			 *  Upload file if repo doesn't exist or is empty
-			 */
-			await uploadReadmeToRepository({ username, repo, token, message, contentBuffer });
-		}
-
-		/**
-		 *  Setup GitHub Actions for Daily AutoUpdate
-		 */
-		if (cronJob) {
-			await setUpWorkflow({ username, repo, token });
-		}
+	/**
+	 *  Setup GitHub Actions for Daily AutoUpdate
+	 */
+	if (cronJob) {
+		await setUpWorkflow({ username, repo, token });
 	}
 };
 
