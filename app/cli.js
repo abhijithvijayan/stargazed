@@ -1,6 +1,7 @@
 /**
  *  @author abhijithvijayan <abhijithvijayan.in>
  */
+
 const ora = require('ora');
 const fs = require('fs');
 const ejs = require('ejs');
@@ -31,9 +32,11 @@ const htmlEscapeTable = {
  */
 String.prototype.htmlEscape = function() {
 	let escStr = this;
+
 	Object.entries(htmlEscapeTable).map(([key, value]) => {
 		return (escStr = escStr.replace(new RegExp(key, 'g'), value));
 	});
+
 	return escStr;
 };
 
@@ -41,11 +44,14 @@ String.prototype.htmlEscape = function() {
  *  Read the template from markdown file
  */
 const getReadmeTemplate = async () => {
-	const spinner = ora('Loading README template').start();
+	const spinner = ora('Loading README template');
+	spinner.start();
 
 	try {
 		const template = await promisify(fs.readFile)(path.resolve(__dirname, 'templates', './stargazed.md'), 'utf8');
+
 		spinner.succeed('README template loaded');
+
 		return template;
 	} catch (err) {
 		spinner.fail('README template loading failed!');
@@ -58,6 +64,7 @@ const getReadmeTemplate = async () => {
  */
 const buildReadmeContent = async context => {
 	const template = await getReadmeTemplate();
+
 	return ejs.render(template, {
 		...context,
 	});
@@ -67,15 +74,18 @@ const buildReadmeContent = async context => {
  *  Write content to README.md
  */
 const writeReadmeContent = async readmeContent => {
-	const spinner = ora('Creating README locally').start();
+	const spinner = ora('Creating README locally');
+	spinner.start();
 
 	try {
 		await promisify(fs.writeFile)('README.md', unescape(readmeContent));
+
 		spinner.succeed('README created locally');
 	} catch (err) {
 		spinner.fail('Failed to create README');
 		flashError(err);
 	}
+
 	spinner.stop();
 };
 
@@ -83,11 +93,14 @@ const writeReadmeContent = async readmeContent => {
  *  Read the workflow sample file
  */
 const getWorkflowTemplate = async () => {
-	const spinner = ora('Loading sample workflow file').start();
+	const spinner = ora('Loading sample workflow file');
+	spinner.start();
 
 	try {
 		const sample = await promisify(fs.readFile)(path.resolve(__dirname, 'templates', './workflow.yml'), 'utf8');
+
 		spinner.succeed('workflow.yml loaded');
+
 		return sample;
 	} catch (err) {
 		spinner.fail('workflow.yml loading failed!');
@@ -98,22 +111,55 @@ const getWorkflowTemplate = async () => {
 /**
  *  Build the workflow.yml content
  */
-
 const buildWorkflowContent = async (username, repo) => {
 	// Read workflow.yml
 	let workflow = await getWorkflowTemplate();
+
 	// Replace with user-defined values
 	const mapObj = {
 		'{{USERNAME}}': username,
 		'{{REPO}}': repo,
 	};
+
 	workflow = workflow.replace(/{{USERNAME}}|{{REPO}}/gi, function(matched) {
 		return `"${mapObj[matched]}"`;
 	});
+
 	return workflow;
 };
 
-// TODO: Refactor to reduce complexity
+/**
+ *  Asynchronous API Call
+ */
+const fetchUserStargazedRepos = async ({ spinner, username, token, list = [], page = 1 }) => {
+	let pageNumber = page;
+	let entries = list;
+	let response;
+
+	const url = `users/${username}/starred?&per_page=100&page=${pageNumber}`;
+
+	try {
+		response = await ghGot(url, { token });
+	} catch (err) {
+		spinner.fail('Error occured while fetching data!');
+		flashError(err);
+
+		return;
+	}
+
+	const { body, headers } = response;
+
+	// Concatenate to existing data
+	entries = entries.concat(body);
+
+	// GitHub returns `last` for the last page
+	if (headers.link && headers.link.includes('next')) {
+		pageNumber += 1;
+		return fetchUserStargazedRepos({ spinner, username, token, list: entries, page: pageNumber });
+	}
+
+	return { list: entries };
+};
 
 /**
  *  Core function
@@ -162,47 +208,17 @@ const stargazed = async _options => {
 		};
 	}
 
-	let page = 1;
-	let list = [];
 	const unordered = {};
 	const ordered = {};
 
-	const spinner = ora('Fetching stargazed repositories...').start();
-
-	/**
-	 *  Asynchronous API Call
-	 */
-	const loop = async () => {
-		let response;
-		const url = `users/${username}/starred?&per_page=100&page=${page}`;
-
-		try {
-			response = await ghGot(url, { token });
-		} catch (err) {
-			spinner.fail('Error occured while fetching data!');
-			flashError(err);
-			return;
-		}
-
-		const { body, headers } = response;
-
-		// Concatenate to existing data
-		list = list.concat(body);
-
-		// GitHub returns `last` for the last page
-		if (headers.link && headers.link.includes('next')) {
-			page += 1;
-			return loop();
-		}
-
-		spinner.succeed(`Fetched ${Object.keys(list).length} stargazed items`);
-		spinner.stop();
-
-		return { list };
-	};
+	const spinner = ora('Fetching stargazed repositories...');
+	spinner.start();
 
 	// API Calling function
-	({ list } = await loop());
+	const { list = [] } = await fetchUserStargazedRepos({ spinner, username, token });
+
+	spinner.succeed(`Fetched ${Object.keys(list).length} stargazed items`);
+	spinner.stop();
 
 	/**
 	 *  Parse and save object
@@ -219,11 +235,14 @@ const stargazed = async _options => {
 			} = item;
 			language = language || 'Others';
 			description = description ? description.htmlEscape() : '';
+
 			if (!(language in unordered)) {
 				unordered[language] = [];
 			}
+
 			// push item into array
 			unordered[language].push([name, html_url, description.trim(), login, stargazers_count]);
+
 			return null;
 		});
 	}
@@ -243,6 +262,7 @@ const stargazed = async _options => {
 	 *  Generate Language Index
 	 */
 	const languages = Object.keys(sort ? ordered : unordered);
+
 	const readmeContent = await buildReadmeContent({
 		// array of languages
 		languages,
@@ -263,11 +283,13 @@ const stargazed = async _options => {
 	 *  Handle Repo actions
 	 */
 	if (gitStatus) {
-		const repoSpinner = ora(`Checking if repository '${repo}' exists...`).start();
+		const repoSpinner = ora(`Checking if repository '${repo}' exists...`);
+		repoSpinner.start();
 
 		let repoExists = false;
 		let isRepoEmpty = false;
 		let sha = null;
+
 		const contentBuffer = await Buffer.from(unescape(readmeContent), 'utf8').toString('base64');
 
 		/**
@@ -312,12 +334,14 @@ const stargazed = async _options => {
 						sha,
 					},
 				});
+
 				repoSpinner.succeed('Update to repository successful!');
 			} catch (err) {
 				if (err.body) {
 					repoSpinner.fail(chalk.default(err.body.message));
 				}
 			}
+
 			repoSpinner.stop();
 		}
 
@@ -349,6 +373,7 @@ const stargazed = async _options => {
 				} catch (err) {
 					repoSpinner.info(chalk.default(err.body && err.body.message));
 				}
+
 				repoSpinner.stop();
 			}
 
@@ -374,6 +399,7 @@ const stargazed = async _options => {
 					repoSpinner.fail(chalk.default(err.body.message));
 				}
 			}
+
 			repoSpinner.stop();
 		}
 
@@ -384,8 +410,10 @@ const stargazed = async _options => {
 			repoSpinner.start('Setting up cron job for GitHub Actions...');
 
 			const workflowContent = await buildWorkflowContent(username, repo);
+
 			// String to base64
 			const workflowBuffer = await Buffer.from(workflowContent, 'utf8').toString('base64');
+
 			// Create .github/workflows/workflow.yml file
 			try {
 				// Create README.md
@@ -409,6 +437,7 @@ const stargazed = async _options => {
 					}
 				}
 			}
+
 			repoSpinner.stop();
 		}
 	}
