@@ -44,7 +44,7 @@ const getReadmeTemplate = async () => {
 	const spinner = ora('Loading README template').start();
 
 	try {
-		const template = await promisify(fs.readFile)(path.resolve(__dirname, './template.md'), 'utf8');
+		const template = await promisify(fs.readFile)(path.resolve(__dirname, 'templates', './stargazed.md'), 'utf8');
 		spinner.succeed('README template loaded');
 		return template;
 	} catch (err) {
@@ -86,11 +86,11 @@ const getWorkflowTemplate = async () => {
 	const spinner = ora('Loading sample workflow file').start();
 
 	try {
-		const sample = await promisify(fs.readFile)(path.resolve(__dirname, './workflow_sample.yml'), 'utf8');
-		spinner.succeed('workflow_sample.yml loaded');
+		const sample = await promisify(fs.readFile)(path.resolve(__dirname, 'templates', './workflow.yml'), 'utf8');
+		spinner.succeed('workflow.yml loaded');
 		return sample;
 	} catch (err) {
-		spinner.fail('workflow_sample.yml loading failed!');
+		spinner.fail('workflow.yml loading failed!');
 		flashError(err);
 	}
 };
@@ -100,7 +100,7 @@ const getWorkflowTemplate = async () => {
  */
 
 const buildWorkflowContent = async (username, repo) => {
-	// Read workflow_sample.yml
+	// Read workflow.yml
 	let workflow = await getWorkflowTemplate();
 	// Replace with user-defined values
 	const mapObj = {
