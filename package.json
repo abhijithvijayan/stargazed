@@ -9,7 +9,7 @@
 		"email": "34790378+abhijithvijayan@users.noreply.github.com",
 		"url": "https://abhijithvijayan.in"
 	},
-	"bin": "cli.js",
+	"bin": "app/index.js",
 	"engines": {
 		"node": ">=8"
 	},
@@ -20,20 +20,17 @@
 	},
 	"husky": {
 		"hooks": {
-		  "pre-commit": "lint-staged"
+			"pre-commit": "lint-staged"
 		}
-	  },
-	  "lint-staged": {
+	},
+	"lint-staged": {
 		"*.js": [
-		  "npm run lint:fix",
-		  "git add"
+			"npm run lint:fix",
+			"git add"
 		]
-	  },
+	},
 	"files": [
-		"index.js",
-		"cli.js",
-		"template.md",
-		"workflow_sample.yml"
+		"app"
 	],
 	"keywords": [
 		"awesome",

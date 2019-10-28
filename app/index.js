@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 const meow = require('meow');
-const stargazed = require('./');
+const stargazed = require('./cli');
 
 const cli = meow(
 	`

@@ -1,7 +1,6 @@
 /**
  *  @author abhijithvijayan <abhijithvijayan.in>
  */
-
 const ora = require('ora');
 const fs = require('fs');
 const ejs = require('ejs');
@@ -14,7 +13,7 @@ const isObject = require('validate.io-object');
 const isString = require('validate.io-string-primitive');
 const isBoolean = require('validate.io-boolean-primitive');
 
-const pkg = require('./package.json');
+const pkg = require('../package.json');
 
 const options = {};
 
@@ -186,6 +185,8 @@ const buildWorkflowContent = async (username, repo) => {
 	});
 	return workflow;
 };
+
+// TODO: Refactor to reduce complexity
 
 /**
  *  Core function

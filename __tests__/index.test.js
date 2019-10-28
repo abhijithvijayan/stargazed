@@ -7,7 +7,7 @@ import stargazed, {
 	buildReadmeContent,
 	// writeReadmeContent,
 	buildWorkflowContent,
-} from '..';
+} from '../app/cli';
 
 import {
 	inputContent,
