@@ -3,17 +3,16 @@
  */
 
 const ora = require('ora');
-const fs = require('fs');
 const ejs = require('ejs');
 const path = require('path');
 const ghGot = require('gh-got');
 const chalk = require('chalk');
-const { promisify } = require('util');
 const unescape = require('lodash.unescape');
 
 const pkg = require('../package.json');
 const { flashError } = require('./utils/message');
 const validateArguments = require('./utils/validate');
+const { readFileAsync, writeFileAsync } = require('./utils/fs');
 
 const options = {};
 
@@ -48,7 +47,7 @@ const getReadmeTemplate = async () => {
 	spinner.start();
 
 	try {
-		const template = await promisify(fs.readFile)(path.resolve(__dirname, 'templates', './stargazed.md'), 'utf8');
+		const template = await readFileAsync(path.resolve(__dirname, 'templates', './stargazed.md'), 'utf8');
 
 		spinner.succeed('README template loaded');
 
@@ -78,7 +77,7 @@ const writeReadmeContent = async readmeContent => {
 	spinner.start();
 
 	try {
-		await promisify(fs.writeFile)('README.md', unescape(readmeContent));
+		await writeFileAsync('README.md', unescape(readmeContent));
 
 		spinner.succeed('README created locally');
 	} catch (err) {
@@ -97,7 +96,7 @@ const getWorkflowTemplate = async () => {
 	spinner.start();
 
 	try {
-		const sample = await promisify(fs.readFile)(path.resolve(__dirname, 'templates', './workflow.yml'), 'utf8');
+		const sample = await readFileAsync(path.resolve(__dirname, 'templates', './workflow.yml'), 'utf8');
 
 		spinner.succeed('workflow.yml loaded');
 
