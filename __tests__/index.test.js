@@ -1,13 +1,14 @@
 import '@testing-library/jest-dom/extend-expect';
 import stargazed, {
-	validate,
-	// flashError,
 	htmlEscapeTable,
 	getReadmeTemplate,
 	buildReadmeContent,
 	// writeReadmeContent,
 	buildWorkflowContent,
 } from '../app/cli';
+
+// import { flashError } from '../app/utils/message';
+import validate from '../app/utils/validate';
 
 import {
 	inputContent,

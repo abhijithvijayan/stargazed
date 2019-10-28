@@ -133,7 +133,8 @@ const stargazed = async _options => {
 
 	if (version) {
 		console.log(chalk.default(pkg.version));
-		return;
+		// for tests
+		return pkg.version;
 	}
 
 	if (!username) {
@@ -413,11 +414,10 @@ const stargazed = async _options => {
 	}
 };
 
-// The user input options
+// The user input options object
 module.exports.options = options;
 module.exports = stargazed;
 module.exports.validate = validateArguments;
-module.exports.flashError = flashError;
 module.exports.htmlEscapeTable = htmlEscapeTable;
 module.exports.getReadmeTemplate = getReadmeTemplate;
 module.exports.buildReadmeContent = buildReadmeContent;
