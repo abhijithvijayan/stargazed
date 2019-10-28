@@ -12,8 +12,8 @@ const pkg = require('../package.json');
 const Spinner = require('./utils/spinner');
 const { flashError } = require('./utils/message');
 const validateArguments = require('./utils/validate');
-const { EMPTY_REPO_MESSAGE } = require('./utils/constants');
 const { readFileAsync, writeFileAsync } = require('./utils/fs');
+const { EMPTY_REPO_MESSAGE, SHA_NOT_SUPPLIED_ERROR } = require('./utils/constants');
 
 // User-input argument options
 const options = {};
@@ -269,7 +269,7 @@ const createRepository = async ({ repo, token }) => {
 		name: repo,
 		description: 'A curated list of my GitHub stars by stargazed',
 		homepage: 'https://github.com/abhijithvijayan/stargazed',
-		private: true,
+		private: false,
 		has_projects: false,
 		has_issues: false,
 		has_wiki: false,
@@ -311,6 +311,41 @@ const uploadReadmeToRepository = async ({ username, repo, token, message, conten
 	} catch (err) {
 		if (err.body) {
 			spinner.fail(chalk.default(err.body.message));
+		}
+	}
+
+	spinner.stop();
+};
+
+const setUpWorkflow = async ({ username, repo, token }) => {
+	const spinner = new Spinner('Setting up cron job for GitHub Actions...');
+
+	const workflowContent = await buildWorkflowContent(username, repo);
+
+	// String to base64
+	const workflowBuffer = await Buffer.from(workflowContent, 'utf8').toString('base64');
+
+	// Create .github/workflows/workflow.yml file
+	try {
+		// Create README.md
+		await ghGot(`/repos/${username}/${repo}/contents/.github/workflows/workflow.yml`, {
+			method: 'PUT',
+			token,
+			body: {
+				message: 'Set up GitHub workflow for daily auto-update',
+				content: workflowBuffer,
+			},
+		});
+
+		spinner.succeed('Setup GitHub Actions workflow success');
+	} catch (err) {
+		if (err.body) {
+			// GitHub returns this error if file already exist
+			if (err.body.message === SHA_NOT_SUPPLIED_ERROR) {
+				spinner.info(chalk.default('GitHub workflow already setup for the repo!'));
+			} else {
+				spinner.fail(chalk.default(err.body.message));
+			}
 		}
 	}
 
@@ -453,38 +488,7 @@ const stargazed = async _options => {
 		 *  Setup GitHub Actions for Daily AutoUpdate
 		 */
 		if (cronJob) {
-			spinner.start('Setting up cron job for GitHub Actions...');
-
-			const workflowContent = await buildWorkflowContent(username, repo);
-
-			// String to base64
-			const workflowBuffer = await Buffer.from(workflowContent, 'utf8').toString('base64');
-
-			// Create .github/workflows/workflow.yml file
-			try {
-				// Create README.md
-				await ghGot(`/repos/${username}/${repo}/contents/.github/workflows/workflow.yml`, {
-					method: 'PUT',
-					token,
-					body: {
-						message: 'Set up GitHub workflow for daily auto-update',
-						content: workflowBuffer,
-					},
-				});
-
-				spinner.succeed('Setup GitHub Actions workflow success');
-			} catch (err) {
-				if (err.body) {
-					// GitHub returns this error if file already exist
-					if (err.body.message === 'Invalid request.\n\n"sha" wasn\'t supplied.') {
-						spinner.info(chalk.default('GitHub workflow already setup for the repo!'));
-					} else {
-						spinner.fail(chalk.default(err.body.message));
-					}
-				}
-			}
-
-			spinner.stop();
+			await setUpWorkflow({ username, repo, token });
 		}
 	}
 };
