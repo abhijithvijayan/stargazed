@@ -2,6 +2,7 @@ const path = require('path');
 const chalk = require('chalk');
 const ghGot = require('gh-got');
 
+const cli = require('../cli');
 const Spinner = require('./spinner');
 const { flashError } = require('./message');
 const { readFileAsync } = require('./fs.js');
@@ -10,7 +11,11 @@ const { EMPTY_REPO_MESSAGE, SHA_NOT_SUPPLIED_ERROR } = require('./constants');
 /**
  *  Function to find if repo is empty / readme exists
  */
-const checkIfReadmeExist = async ({ username, repo, token }) => {
+const checkIfReadmeExist = async () => {
+	const {
+		options: { username, repo, token = '' },
+	} = cli;
+
 	const spinner = new Spinner(`Checking if repository '${repo}' exists...`);
 	spinner.start();
 
@@ -50,7 +55,11 @@ const checkIfReadmeExist = async ({ username, repo, token }) => {
 /**
  *  Update upstream README.md
  */
-const updateRepositoryReadme = async ({ username, repo, token, message, contentBuffer, sha }) => {
+const updateRepositoryReadme = async ({ contentBuffer, sha }) => {
+	const {
+		options: { username, repo, token = '', message },
+	} = cli;
+
 	const spinner = new Spinner('Updating repository...');
 	spinner.start();
 
@@ -78,7 +87,11 @@ const updateRepositoryReadme = async ({ username, repo, token, message, contentB
 /**
  *  Create a upstream repository with metadata
  */
-const createRepository = async ({ repo, token }) => {
+const createRepository = async () => {
+	const {
+		options: { repo, token = '' },
+	} = cli;
+
 	const spinner = new Spinner('Creating new repository...');
 	spinner.start();
 
@@ -110,7 +123,11 @@ const createRepository = async ({ repo, token }) => {
 /**
  *  Create a new README.md file in repository
  */
-const uploadReadmeToRepository = async ({ username, repo, token, message, contentBuffer }) => {
+const uploadReadmeToRepository = async ({ contentBuffer }) => {
+	const {
+		options: { username, repo, token, message },
+	} = cli;
+
 	const spinner = new Spinner('Uploading README file...');
 	spinner.start();
 
@@ -134,7 +151,11 @@ const uploadReadmeToRepository = async ({ username, repo, token, message, conten
 	spinner.stop();
 };
 
-const handleRepositoryActions = async ({ username, repo, token, message, readmeContent }) => {
+const handleRepositoryActions = async ({ readmeContent }) => {
+	const {
+		options: { username, repo, token = '', message },
+	} = cli;
+
 	const { sha, repoExists, isRepoEmpty } = await checkIfReadmeExist({
 		username,
 		repo,
@@ -187,7 +208,11 @@ const getWorkflowTemplate = async () => {
 /**
  *  Build the workflow.yml content
  */
-const buildWorkflowContent = async (username, repo) => {
+const buildWorkflowContent = async () => {
+	const {
+		options: { username, repo },
+	} = cli;
+
 	// Read workflow.yml
 	let workflow = await getWorkflowTemplate();
 
@@ -207,7 +232,11 @@ const buildWorkflowContent = async (username, repo) => {
 /**
  *  Handle setting up GitHub actions workflow
  */
-const setUpWorkflow = async ({ username, repo, token }) => {
+const setUpWorkflow = async () => {
+	const {
+		options: { username, repo, token = '' },
+	} = cli;
+
 	const spinner = new Spinner('Setting up cron job for GitHub Actions...');
 	spinner.start();
 

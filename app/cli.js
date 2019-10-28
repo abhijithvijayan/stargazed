@@ -95,7 +95,8 @@ const writeReadmeContent = async readmeContent => {
 /**
  *  Asynchronous API Call
  */
-const fetchUserStargazedRepos = async ({ spinner, username, token, list = [], page = 1 }) => {
+const fetchUserStargazedRepos = async ({ spinner, list = [], page = 1 }) => {
+	const { username, token } = options;
 	let pageNumber = page;
 	let entries = list;
 	let response;
@@ -119,7 +120,7 @@ const fetchUserStargazedRepos = async ({ spinner, username, token, list = [], pa
 	// GitHub returns `last` for the last page
 	if (headers.link && headers.link.includes('next')) {
 		pageNumber += 1;
-		return fetchUserStargazedRepos({ spinner, username, token, list: entries, page: pageNumber });
+		return fetchUserStargazedRepos({ spinner, list: entries, page: pageNumber });
 	}
 
 	return { list: entries };
@@ -161,7 +162,7 @@ const stargazed = async _options => {
 		return;
 	}
 
-	const { username, token = '', sort, repo, message, workflow, version } = options;
+	const { username, token = '', sort, repo, workflow, version } = options;
 
 	let gitStatus = false;
 	let cronJob = false;
@@ -204,7 +205,7 @@ const stargazed = async _options => {
 	spinner.start();
 
 	// API Calling function
-	const { list = [] } = await fetchUserStargazedRepos({ spinner, username, token });
+	const { list = [] } = await fetchUserStargazedRepos({ spinner });
 
 	spinner.succeed(`Fetched ${Object.keys(list).length} stargazed items`);
 	spinner.stop();
@@ -252,23 +253,21 @@ const stargazed = async _options => {
 	 *  Handles all the repo actions
 	 */
 	if (gitStatus) {
-		await handleRepositoryActions({ username, repo, token, message, readmeContent });
+		await handleRepositoryActions({ readmeContent });
 	}
 
 	/**
 	 *  Setup GitHub Actions for Daily AutoUpdate
 	 */
 	if (cronJob) {
-		await setUpWorkflow({ username, repo, token });
+		await setUpWorkflow();
 	}
 };
 
 // The user input options object
 module.exports.options = options;
 module.exports = stargazed;
-module.exports.validate = validateArguments;
 module.exports.htmlEscapeTable = htmlEscapeTable;
 module.exports.getReadmeTemplate = getReadmeTemplate;
 module.exports.buildReadmeContent = buildReadmeContent;
 module.exports.writeReadmeContent = writeReadmeContent;
-module.exports.getWorkflowTemplate = getReadmeTemplate;
