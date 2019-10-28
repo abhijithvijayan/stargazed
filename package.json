@@ -1,6 +1,6 @@
 {
 	"name": "stargazed",
-	"version": "1.9.2",
+	"version": "1.9.3",
 	"description": "Creating your own Awesome List of GitHub Stars!",
 	"license": "MIT",
 	"repository": "https://github.com/abhijithvijayan/stargazed.git",
@@ -9,7 +9,10 @@
 		"email": "34790378+abhijithvijayan@users.noreply.github.com",
 		"url": "https://abhijithvijayan.in"
 	},
-	"bin": "lib/index.js",
+	"bin": "./lib/index.js",
+	"files": [
+		"/lib"
+	],
 	"engines": {
 		"node": ">=8"
 	},
@@ -30,9 +33,6 @@
 			"git add"
 		]
 	},
-	"files": [
-		"lib"
-	],
 	"keywords": [
 		"awesome",
 		"github",
