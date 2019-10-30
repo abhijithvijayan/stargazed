@@ -19,7 +19,7 @@
 <%   *  3. Changes any space to a hyphen.										-%>
 <%   *  4. If that is not unique, add "-1", "-2", "-3",... to make it unique						-%>
 <%   */															-%>
-<% languages.map(item => {												-%>
+<% languages.forEach(item => {												-%>
 <% 	language = item.trim().toLowerCase().replace(/[^\w\- ]+/g, '').replace(/\s/g, '-').replace(/\-+$/, '');		-%>
 <% 	if (languages.indexOf(language) !== -1) {									-%>
 <% 		let i = 1;												-%>
@@ -29,12 +29,12 @@
 <% 	languages.push(language);											-%>
 - [<%= item.replace(/\s/g, "&nbsp;") %> (<%= stargazed[item].length %>)](#<%= language %>)
 <% }); 															-%>
-<% Object.entries(stargazed).map(([key, value]) => {									-%>
+<% Object.entries(stargazed).forEach(([key, value]) => {									-%>
 
 ## <%= key %>
 |  | Name 	|  Description 	| Author  	|  Stars 	|
 |---	|---	|---	|---	|---	|
-<% value.map((item, index) => {													-%>
+<% value.forEach((item, index) => {													-%>
 | <%= index + 1 -%> |  [<%= item[0] -%>](<%= item[1] -%>) | <%= item[2] -%> | <%= item[3] -%> | <%= item[4] -%> |
 <% })															-%>
 <% })															-%>
