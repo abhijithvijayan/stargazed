@@ -8,7 +8,7 @@ export const inputContent = {
 		Vulcan: [[3, 'URL', 'description', 'author', 3000]],
 		JavaScript: [[4, 'URL', 'description', 'author', 4000]],
 	},
-	date: `${new Date().getDate()}--${new Date().getMonth()}--${new Date().getFullYear()}`,
+	date: `${new Date().getDate()}--${new Date().getMonth() + 1}--${new Date().getFullYear()}`,
 };
 
 export const goodInputValidation = {
