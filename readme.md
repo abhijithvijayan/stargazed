@@ -1,8 +1,9 @@
-# stargazed [![npm version](https://img.shields.io/npm/v/stargazed)](https://www.npmjs.com/package/stargazed)
+# stargazed [![npm version](https://img.shields.io/npm/v/stargazed)](https://www.npmjs.com/package/stargazed) [![Build Status](https://travis-ci.com/abhijithvijayan/stargazed.svg?branch=master)](https://travis-ci.com/abhijithvijayan/stargazed)
 
 > Creating your own Awesome List of GitHub Stars!
 
-[![Build Status](https://travis-ci.com/abhijithvijayan/stargazed.svg?branch=master)](https://travis-ci.com/abhijithvijayan/stargazed)
+### 🙋‍♂️ Made by [@abhijithvijayan](https://twitter.com/_abhijithv)
+
 
 ## Install
 
