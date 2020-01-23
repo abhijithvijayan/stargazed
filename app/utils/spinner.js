@@ -2,27 +2,28 @@ const ora = require('ora');
 
 class Spinner {
 	constructor(text) {
-		this.text = text;
+		this._text = text;
+		this._spinner = ora(this._text);
 	}
 
 	start() {
-		this.spinner = ora(this.text).start();
+		this._spinner.start();
 	}
 
 	info(text) {
-		this.spinner.info(text);
+		this._spinner.info(text);
 	}
 
 	succeed(text) {
-		this.spinner.succeed(text);
+		this._spinner.succeed(text);
 	}
 
 	fail(text) {
-		this.spinner.fail(text);
+		this._spinner.fail(text);
 	}
 
 	stop() {
-		this.spinner.stop();
+		this._spinner.stop();
 	}
 }
 
