@@ -5,10 +5,8 @@
 const ejs = require('ejs');
 const path = require('path');
 const ghGot = require('gh-got');
-const chalk = require('chalk');
 const unescape = require('lodash.unescape');
 
-const pkg = require('../package.json');
 const Spinner = require('./utils/spinner');
 const { flashError } = require('./utils/message');
 const validateArguments = require('./utils/validate');

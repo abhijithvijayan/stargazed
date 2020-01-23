@@ -4,12 +4,12 @@ import stargazed, {
 	getReadmeTemplate,
 	buildReadmeContent,
 	// writeReadmeContent,
-} from '../lib/cli';
+} from '../app/cli';
 
-import { buildWorkflowContent } from '../lib/utils/repo';
+import { buildWorkflowContent } from '../app/utils/repo';
 
-// import { flashError } from '../lib/utils/message';
-import validate from '../lib/utils/validate';
+// import { flashError } from '../app/utils/message';
+import validate from '../app/utils/validate';
 
 import {
 	inputContent,

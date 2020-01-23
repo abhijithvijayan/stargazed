@@ -9,9 +9,9 @@
 		"email": "34790378+abhijithvijayan@users.noreply.github.com",
 		"url": "https://abhijithvijayan.in"
 	},
-	"bin": "./lib/index.js",
+	"bin": "./app/index.js",
 	"files": [
-		"/lib"
+		"/app"
 	],
 	"engines": {
 		"node": ">=8"
@@ -23,15 +23,14 @@
 		"pack:list": "npm pack && tar -xvzf *.tgz && rm -rf package *.tgz",
 		"prepare": "rm -rf README.md"
 	},
-	"husky": {
-		"hooks": {
-			"pre-commit": "lint-staged"
-		}
-	},
+	// "husky": {
+	// 	"hooks": {
+	// 		"pre-commit": "lint-staged"
+	// 	}
+	// },
 	"lint-staged": {
 		"*.js": [
-			"npm run lint:fix",
-			"git add"
+			"npm run lint:fix"
 		]
 	},
 	"keywords": [
