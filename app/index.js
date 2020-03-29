@@ -34,11 +34,11 @@ const cli = meow(
 			},
 			workflow: {
 				type: 'boolean',
-				alias: 'w',
+				alias: ['w', 'a', 'action'],
 			},
 			username: {
 				type: 'string',
-				alias: 'u',
+				alias: ['u', 'user'],
 			},
 			token: {
 				type: 'string',
@@ -46,7 +46,7 @@ const cli = meow(
 			},
 			repo: {
 				type: 'string',
-				alias: 'r',
+				alias: ['r', 'repository'],
 			},
 			message: {
 				type: 'string',
