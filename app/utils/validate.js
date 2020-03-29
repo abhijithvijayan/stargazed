@@ -4,7 +4,7 @@ const isBoolean = require('validate.io-boolean-primitive');
 
 const cli = require('../cli');
 
-const validateArguments = _options => {
+const validateArguments = (_options) => {
 	const { options } = cli;
 
 	if (!isObject(_options)) {

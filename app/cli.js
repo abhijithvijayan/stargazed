@@ -29,7 +29,7 @@ const htmlEscapeTable = {
 /**
  *  Replace special characters with escape code
  */
-String.prototype.htmlEscape = function() {
+String.prototype.htmlEscape = function () {
 	let escStr = this;
 
 	Object.entries(htmlEscapeTable).map(([key, value]) => {
@@ -63,7 +63,7 @@ const getReadmeTemplate = async () => {
 /**
  *  Render out readme content
  */
-const buildReadmeContent = async context => {
+const buildReadmeContent = async (context) => {
 	const template = await getReadmeTemplate();
 
 	return ejs.render(template, {
@@ -74,7 +74,7 @@ const buildReadmeContent = async context => {
 /**
  *  Write content to README.md
  */
-const writeReadmeContent = async readmeContent => {
+const writeReadmeContent = async (readmeContent) => {
 	const spinner = new Spinner('Creating README locally');
 	spinner.start();
 
@@ -128,7 +128,7 @@ const fetchUserStargazedRepos = async ({ spinner, list = [], page = 1 }) => {
  *  stargazed repo list parser
  */
 const parseStargazedList = ({ list, unordered }) => {
-	return list.forEach(item => {
+	return list.forEach((item) => {
 		let {
 			name,
 			description,
@@ -152,7 +152,7 @@ const parseStargazedList = ({ list, unordered }) => {
 /**
  *  Core Driver function
  */
-const stargazed = async _options => {
+const stargazed = async (_options) => {
 	const err = validateArguments(_options);
 
 	if (err) {
@@ -185,7 +185,7 @@ const stargazed = async _options => {
 	 *  Trim whitespaces
 	 */
 	if (typeof String.prototype.trim === 'undefined') {
-		String.prototype.trim = function() {
+		String.prototype.trim = function () {
 			return String(this).replace(/^\s+|\s+$/g, '');
 		};
 	}
@@ -215,7 +215,7 @@ const stargazed = async _options => {
 	if (sort) {
 		Object.keys(unordered)
 			.sort()
-			.forEach(function(key) {
+			.forEach(function (key) {
 				ordered[key] = unordered[key];
 			});
 	}
