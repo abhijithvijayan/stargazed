@@ -59,7 +59,10 @@ const {
 	spinner.start();
 
 	// get data from github api
-	const { list = [] } = await fetchUserStargazedRepos({ spinner });
+	const { list = [] } = await fetchUserStargazedRepos({
+		spinner,
+		options,
+	});
 
 	spinner.succeed(`Fetched ${Object.keys(list).length} stargazed items`);
 	spinner.stop();
@@ -82,7 +85,6 @@ const {
 			});
 	}
 
-	// Generate Language Index
 	const languages = Object.keys(sort ? ordered : unordered);
 
 	const readmeContent = await buildReadmeContent({

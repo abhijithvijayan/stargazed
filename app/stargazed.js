@@ -11,7 +11,6 @@ const ghGot = require('gh-got');
 const unescape = require('lodash.unescape');
 
 const Spinner = require('./utils/spinner');
-const { options } = require('./utils/validate');
 const { flashError } = require('./utils/message');
 const { readFileAsync, writeFileAsync } = require('./utils/fs');
 
@@ -36,6 +35,25 @@ String.prototype.htmlEscape = function () {
 	});
 
 	return escStr;
+};
+
+/**
+ *  Write content to README.md
+ */
+const writeReadmeContent = async (readmeContent) => {
+	const spinner = new Spinner('Creating README locally');
+	spinner.start();
+
+	try {
+		await writeFileAsync('README.md', unescape(readmeContent));
+
+		spinner.succeed('README created locally');
+	} catch (err) {
+		spinner.fail('Failed to create README');
+		flashError(err);
+	} finally {
+		spinner.stop();
+	}
 };
 
 /**
@@ -71,60 +89,6 @@ const buildReadmeContent = async (context) => {
 };
 
 /**
- *  Write content to README.md
- */
-const writeReadmeContent = async (readmeContent) => {
-	const spinner = new Spinner('Creating README locally');
-	spinner.start();
-
-	try {
-		await writeFileAsync('README.md', unescape(readmeContent));
-
-		spinner.succeed('README created locally');
-	} catch (err) {
-		spinner.fail('Failed to create README');
-		flashError(err);
-	} finally {
-		spinner.stop();
-	}
-};
-
-/**
- *  Asynchronous API Call
- */
-const fetchUserStargazedRepos = async ({ spinner, list = [], page = 1 }) => {
-	const { username, token } = options;
-
-	let pageNumber = page;
-	let entries = list;
-	let response;
-
-	const url = `users/${username}/starred?&per_page=100&page=${pageNumber}`;
-
-	try {
-		response = await ghGot(url, { token });
-	} catch (err) {
-		spinner.fail('Error occured while fetching data!');
-		flashError(err);
-
-		return;
-	}
-
-	const { body, headers } = response;
-
-	// Concatenate to existing data
-	entries = entries.concat(body);
-
-	// GitHub returns `last` for the last page
-	if (headers.link && headers.link.includes('next')) {
-		pageNumber += 1;
-		return fetchUserStargazedRepos({ spinner, list: entries, page: pageNumber });
-	}
-
-	return { list: entries };
-};
-
-/**
  *  @returns Array of object
  */
 function generateStargazedList(list) {
@@ -157,6 +121,47 @@ function generateStargazedList(list) {
 	});
 
 	return unordered;
+}
+
+/**
+ *  Asynchronous API Call
+ */
+async function fetchUserStargazedRepos({ spinner, options, list = [], page = 1 }) {
+	let entries = list;
+	let pageNumber = page;
+	let response;
+
+	const { username, token } = options;
+	const url = `users/${username}/starred?&per_page=100&page=${pageNumber}`;
+
+	try {
+		response = await ghGot(url, { token });
+	} catch (err) {
+		spinner.fail('Error occured while fetching data!');
+		flashError(err);
+
+		return;
+	}
+
+	const { body, headers } = response;
+
+	// Concatenate to existing data
+	entries = entries.concat(body);
+
+	// GitHub returns `last` for the last page
+	if (headers.link && headers.link.includes('next')) {
+		pageNumber += 1;
+		return fetchUserStargazedRepos({
+			spinner,
+			options,
+			list: entries,
+			page: pageNumber,
+		});
+	}
+
+	return {
+		list: entries,
+	};
 }
 
 module.exports.htmlEscapeTable = htmlEscapeTable;
