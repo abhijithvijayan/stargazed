@@ -8,10 +8,8 @@ const { readFileAsync } = require('./fs');
 const { flashError } = require('./message');
 const { EMPTY_REPO_MESSAGE, SHA_NOT_SUPPLIED_ERROR } = require('./constants');
 
-/**
- *  Read the workflow sample file
- */
-const getWorkflowTemplate = async () => {
+// Read the workflow sample file
+async function getWorkflowTemplate() {
 	const spinner = new Spinner('Loading sample workflow file');
 	spinner.start();
 
@@ -27,12 +25,10 @@ const getWorkflowTemplate = async () => {
 	} finally {
 		spinner.stop();
 	}
-};
+}
 
-/**
- *  Build the workflow.yml content
- */
-const buildWorkflowContent = async (username, repo) => {
+// Build the workflow.yml content
+async function buildWorkflowContent(username, repo) {
 	// Read workflow.yml
 	let workflow = await getWorkflowTemplate();
 
@@ -47,12 +43,10 @@ const buildWorkflowContent = async (username, repo) => {
 	});
 
 	return workflow;
-};
+}
 
-/**
- *  Handle setting up GitHub actions workflow
- */
-const setUpWorkflow = async ({ username, repo, token = '' }) => {
+// Handle setting up GitHub actions workflow
+async function setUpWorkflow({ username, repo, token = '' }) {
 	const spinner = new Spinner('Setting up cron job for GitHub Actions...');
 	spinner.start();
 
@@ -86,12 +80,10 @@ const setUpWorkflow = async ({ username, repo, token = '' }) => {
 	} finally {
 		spinner.stop();
 	}
-};
+}
 
-/**
- *  Create a new README.md file in repository
- */
-const uploadReadmeToRepository = async ({ username, repo, token, message, contentBuffer }) => {
+// Create a new README.md file in repository
+async function uploadReadmeToRepository({ username, repo, token, message, contentBuffer }) {
 	const spinner = new Spinner('Uploading README file...');
 	spinner.start();
 
@@ -113,12 +105,10 @@ const uploadReadmeToRepository = async ({ username, repo, token, message, conten
 	}
 
 	spinner.stop();
-};
+}
 
-/**
- *  Create a upstream repository with metadata
- */
-const createRepository = async (repo, token) => {
+// Create a upstream repository with metadata
+async function createRepository(repo, token) {
 	const spinner = new Spinner('Creating new repository...');
 	spinner.start();
 
@@ -145,12 +135,10 @@ const createRepository = async (repo, token) => {
 	} finally {
 		spinner.stop();
 	}
-};
+}
 
-/**
- *  Update upstream README.md
- */
-const updateRepositoryReadme = async ({ username, repo, token, message, contentBuffer, sha }) => {
+// Update upstream README.md
+async function updateRepositoryReadme({ username, repo, token, message, contentBuffer, sha }) {
 	const spinner = new Spinner('Updating repository...');
 	spinner.start();
 
@@ -173,12 +161,10 @@ const updateRepositoryReadme = async ({ username, repo, token, message, contentB
 	} finally {
 		spinner.stop();
 	}
-};
+}
 
-/**
- *  Function to find if repo is empty / readme exists
- */
-const checkIfReadmeExist = async ({ username, repo, token }) => {
+// Function to find if repo is empty / readme exists
+async function checkIfReadmeExist({ username, repo, token }) {
 	const spinner = new Spinner(`Checking if repository '${repo}' exists...`);
 	spinner.start();
 
@@ -186,9 +172,7 @@ const checkIfReadmeExist = async ({ username, repo, token }) => {
 	let repoExists = false;
 	let isRepoEmpty = false;
 
-	/**
-	 *  Get sha of README.md if it exist
-	 */
+	// Get sha of README.md if it exist
 	try {
 		({
 			body: { sha },
@@ -213,9 +197,9 @@ const checkIfReadmeExist = async ({ username, repo, token }) => {
 	}
 
 	return { sha, repoExists, isRepoEmpty };
-};
+}
 
-const handleRepositoryActions = async ({ readmeContent, options }) => {
+async function handleRepositoryActions({ readmeContent, options }) {
 	const { username, repo, token = '', message } = options;
 
 	const { sha, repoExists, isRepoEmpty } = await checkIfReadmeExist({
@@ -232,19 +216,15 @@ const handleRepositoryActions = async ({ readmeContent, options }) => {
 	}
 
 	if (!repoExists || isRepoEmpty) {
-		/**
-		 *  Create new Repository
-		 */
+		// Create new Repository
 		if (!repoExists) {
 			await createRepository(repo, token);
 		}
 
-		/**
-		 *  Upload file if repo doesn't exist or is empty
-		 */
+		// Upload file if repo doesn't exist or is empty
 		await uploadReadmeToRepository({ username, repo, token, message, contentBuffer });
 	}
-};
+}
 
 module.exports = {
 	setUpWorkflow,

@@ -1,15 +1,22 @@
 #!/usr/bin/env node
 
+/**
+ *  stargazed
+ *
+ *  @author   abhijithvijayan <abhijithvijayan.in>
+ *  @license  MIT License
+ */
+
 const cli = require('./cli');
 const Spinner = require('./utils/spinner');
 const { flashError } = require('./utils/message');
 const { options, validate } = require('./utils/validate');
 const { handleRepositoryActions, setUpWorkflow } = require('./utils/repo');
 const {
-	fetchUserStargazedRepos,
-	generateStargazedList,
-	buildReadmeContent,
 	writeReadmeContent,
+	buildReadmeContent,
+	generateStargazedList,
+	fetchUserStargazedRepos,
 } = require('./stargazed');
 
 (async () => {
@@ -22,13 +29,13 @@ const {
 
 	const { username, token = '', sort, repo, workflow } = options;
 
-	let githubAction = false;
-	let cronJob = false;
-
 	if (!username) {
 		flashError('Error! username is a required field.');
 		return;
 	}
+
+	let githubAction = false;
+	let cronJob = false;
 
 	if (repo) {
 		if (!token) {
@@ -43,17 +50,12 @@ const {
 		githubAction = true;
 	}
 
-	/**
-	 *  Trim whitespaces
-	 */
+	// Trim whitespaces
 	if (typeof String.prototype.trim === 'undefined') {
 		String.prototype.trim = function () {
 			return String(this).replace(/^\s+|\s+$/g, '');
 		};
 	}
-
-	let unordered = {};
-	const ordered = {};
 
 	const spinner = new Spinner('Fetching stargazed repositories...');
 	spinner.start();
@@ -67,16 +69,15 @@ const {
 	spinner.succeed(`Fetched ${Object.keys(list).length} stargazed items`);
 	spinner.stop();
 
-	/**
-	 *  Parse and save object
-	 */
+	let unordered = {};
+	const ordered = {};
+
+	// Generate list
 	if (Array.isArray(list)) {
 		unordered = await generateStargazedList(list);
 	}
 
-	/**
-	 *  Sort to Languages alphabetically
-	 */
+	// Sort to Languages alphabetically
 	if (sort) {
 		Object.keys(unordered)
 			.sort()
@@ -86,7 +87,6 @@ const {
 	}
 
 	const languages = Object.keys(sort ? ordered : unordered);
-
 	const readmeContent = await buildReadmeContent({
 		// array of languages
 		languages,
@@ -101,9 +101,7 @@ const {
 	// Write Readme Content locally
 	await writeReadmeContent(readmeContent);
 
-	/**
-	 *  Handles all the repo actions
-	 */
+	//  Handles all the repo actions
 	if (githubAction) {
 		await handleRepositoryActions({
 			readmeContent: unescape(readmeContent),
@@ -111,9 +109,7 @@ const {
 		});
 	}
 
-	/**
-	 *  Setup GitHub Actions for Daily AutoUpdate
-	 */
+	// Setup GitHub Actions for Daily AutoUpdate
 	if (cronJob) {
 		await setUpWorkflow(options);
 	}

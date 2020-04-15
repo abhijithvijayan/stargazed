@@ -1,10 +1,3 @@
-/**
- *  stargazed
- *
- *  @author   abhijithvijayan <abhijithvijayan.in>
- *  @license  MIT License
- */
-
 const ejs = require('ejs');
 const path = require('path');
 const ghGot = require('gh-got');
@@ -14,9 +7,7 @@ const Spinner = require('./utils/spinner');
 const { flashError } = require('./utils/message');
 const { readFileAsync, writeFileAsync } = require('./utils/fs');
 
-/**
- *  Escape symbol table
- */
+// Escape symbol table
 const htmlEscapeTable = {
 	'>': '&gt;',
 	'<': '&lt;',
@@ -24,9 +15,7 @@ const htmlEscapeTable = {
 	'[|]': '\\|',
 };
 
-/**
- *  Replace special characters with escape code
- */
+// Replace special characters with escape code
 String.prototype.htmlEscape = function () {
 	let escStr = this;
 
@@ -37,10 +26,8 @@ String.prototype.htmlEscape = function () {
 	return escStr;
 };
 
-/**
- *  Write content to README.md
- */
-const writeReadmeContent = async (readmeContent) => {
+// Write content to README.md
+async function writeReadmeContent(readmeContent) {
 	const spinner = new Spinner('Creating README locally');
 	spinner.start();
 
@@ -54,12 +41,10 @@ const writeReadmeContent = async (readmeContent) => {
 	} finally {
 		spinner.stop();
 	}
-};
+}
 
-/**
- *  Read the template from markdown file
- */
-const getReadmeTemplate = async () => {
+// Read the template from markdown file
+async function getReadmeTemplate() {
 	const spinner = new Spinner('Loading README template');
 	spinner.start();
 
@@ -75,21 +60,19 @@ const getReadmeTemplate = async () => {
 	} finally {
 		spinner.stop();
 	}
-};
+}
 
-/**
- *  Render out readme content
- */
-const buildReadmeContent = async (context) => {
+// Render out readme content
+async function buildReadmeContent(context) {
 	const template = await getReadmeTemplate();
 
 	return ejs.render(template, {
 		...context,
 	});
-};
+}
 
 /**
- *  @returns Array of object
+ *  @returns Object of Arrays
  */
 function generateStargazedList(list) {
 	const unordered = {};
@@ -123,9 +106,7 @@ function generateStargazedList(list) {
 	return unordered;
 }
 
-/**
- *  Asynchronous API Call
- */
+// Asynchronous API Call
 async function fetchUserStargazedRepos({ spinner, options, list = [], page = 1 }) {
 	let entries = list;
 	let pageNumber = page;
