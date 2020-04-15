@@ -2,11 +2,10 @@ const isObject = require('validate.io-object');
 const isString = require('validate.io-string-primitive');
 const isBoolean = require('validate.io-boolean-primitive');
 
-const cli = require('../cli');
+// User-input argument options
+const options = {};
 
-const validateArguments = (_options) => {
-	const { options } = cli;
-
+const validate = (_options) => {
 	if (!isObject(_options)) {
 		return new TypeError(`invalid input argument. Options argument must be an object. Value: \`${_options}\`.`);
 	}
@@ -68,4 +67,5 @@ const validateArguments = (_options) => {
 	return null;
 };
 
-module.exports = validateArguments;
+module.exports.options = options;
+module.exports.validate = validate;

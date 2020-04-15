@@ -1,59 +1,114 @@
 #!/usr/bin/env node
 
-const meow = require('meow');
-const stargazed = require('./cli');
+const cli = require('./cli');
+const Spinner = require('./utils/spinner');
+const { flashError } = require('./utils/message');
+const { options, validate } = require('./utils/validate');
+const { handleRepositoryActions, setUpWorkflow } = require('./utils/repo');
+const { fetchUserStargazedRepos, parseStargazedList, buildReadmeContent, writeReadmeContent } = require('./stargazed');
 
-const cli = meow(
-	`
-		Usage
-		  $ stargazed [OPTIONS]
+(async () => {
+	const err = validate(cli.flags);
 
-		Options
-			-u, --username TEXT    GitHub username
-			-t, --token TEXT       GitHub token
-			-s, --sort             sort by language
-			-r, --repo TEXT	       repository name
-			-m, --message TEXT     commit message
-			-w, --workflow         Setup GitHub Actions for Daily AutoUpdate
-			-v, --version          Show the version and exit with code 0
-
-		Examples
-			$ stargazed --username abhijithvijayan --token "GITHUB_TOKEN" --sort
-			$ stargazed -u "abhijithvijayan" -r "awesome-stars" -t "GITHUB-TOKEN" -s -w
-    	$ stargazed -u "abhijithvijayan" -r "REPO_NAME" -t "GITHUB_TOKEN" -m "COMMIT_MESSAGE" -s
-	`,
-	{
-		flags: {
-			version: {
-				type: 'boolean',
-				alias: 'v',
-			},
-			sort: {
-				type: 'boolean',
-				alias: 's',
-			},
-			workflow: {
-				type: 'boolean',
-				alias: ['w', 'a', 'action'],
-			},
-			username: {
-				type: 'string',
-				alias: ['u', 'user'],
-			},
-			token: {
-				type: 'string',
-				alias: 't',
-			},
-			repo: {
-				type: 'string',
-				alias: ['r', 'repository'],
-			},
-			message: {
-				type: 'string',
-				alias: 'm',
-			},
-		},
+	if (err) {
+		flashError(err);
+		return;
 	}
-);
 
-stargazed(cli.flags);
+	const { username, token = '', sort, repo, workflow } = options;
+
+	let gitStatus = false;
+	let cronJob = false;
+
+	if (!username) {
+		flashError('Error! username is a required field.');
+		return;
+	}
+
+	if (repo) {
+		if (!token) {
+			flashError('Error: creating repository needs token. Set --token');
+			return;
+		}
+
+		if (workflow) {
+			cronJob = true;
+		}
+
+		gitStatus = true;
+	}
+
+	/**
+	 *  Trim whitespaces
+	 */
+	if (typeof String.prototype.trim === 'undefined') {
+		String.prototype.trim = function () {
+			return String(this).replace(/^\s+|\s+$/g, '');
+		};
+	}
+
+	const unordered = {};
+	const ordered = {};
+
+	const spinner = new Spinner('Fetching stargazed repositories...');
+	spinner.start();
+
+	// API Calling function
+	const { list = [] } = await fetchUserStargazedRepos({ spinner });
+
+	spinner.succeed(`Fetched ${Object.keys(list).length} stargazed items`);
+	spinner.stop();
+
+	/**
+	 *  Parse and save object
+	 */
+	if (Array.isArray(list)) {
+		await parseStargazedList({ list, unordered });
+	}
+
+	/**
+	 *  Sort to Languages alphabetically
+	 */
+	if (sort) {
+		Object.keys(unordered)
+			.sort()
+			.forEach(function (key) {
+				ordered[key] = unordered[key];
+			});
+	}
+
+	/**
+	 *  Generate Language Index
+	 */
+	const languages = Object.keys(sort ? ordered : unordered);
+
+	const readmeContent = await buildReadmeContent({
+		// array of languages
+		languages,
+		// Total items count
+		count: Object.keys(list).length,
+		// Stargazed Repos
+		stargazed: sort ? ordered : unordered,
+		username,
+		date: `${new Date().getDate()}--${new Date().getMonth() + 1}--${new Date().getFullYear()}`,
+	});
+
+	/**
+	 *  Write Readme Content locally
+	 */
+	await writeReadmeContent(readmeContent);
+
+	/**
+	 *  Handles all the repo actions
+	 */
+	if (gitStatus) {
+		await handleRepositoryActions({ readmeContent: unescape(readmeContent) });
+	}
+
+	/**
+	 *  Setup GitHub Actions for Daily AutoUpdate
+	 */
+	if (cronJob) {
+		await setUpWorkflow();
+	}
+})();
