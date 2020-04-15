@@ -5,7 +5,12 @@ const Spinner = require('./utils/spinner');
 const { flashError } = require('./utils/message');
 const { options, validate } = require('./utils/validate');
 const { handleRepositoryActions, setUpWorkflow } = require('./utils/repo');
-const { fetchUserStargazedRepos, parseStargazedList, buildReadmeContent, writeReadmeContent } = require('./stargazed');
+const {
+	fetchUserStargazedRepos,
+	generateStargazedList,
+	buildReadmeContent,
+	writeReadmeContent,
+} = require('./stargazed');
 
 (async () => {
 	const err = validate(cli.flags);
@@ -17,7 +22,7 @@ const { fetchUserStargazedRepos, parseStargazedList, buildReadmeContent, writeRe
 
 	const { username, token = '', sort, repo, workflow } = options;
 
-	let gitStatus = false;
+	let githubAction = false;
 	let cronJob = false;
 
 	if (!username) {
@@ -35,7 +40,7 @@ const { fetchUserStargazedRepos, parseStargazedList, buildReadmeContent, writeRe
 			cronJob = true;
 		}
 
-		gitStatus = true;
+		githubAction = true;
 	}
 
 	/**
@@ -47,13 +52,13 @@ const { fetchUserStargazedRepos, parseStargazedList, buildReadmeContent, writeRe
 		};
 	}
 
-	const unordered = {};
+	let unordered = {};
 	const ordered = {};
 
 	const spinner = new Spinner('Fetching stargazed repositories...');
 	spinner.start();
 
-	// API Calling function
+	// get data from github api
 	const { list = [] } = await fetchUserStargazedRepos({ spinner });
 
 	spinner.succeed(`Fetched ${Object.keys(list).length} stargazed items`);
@@ -63,7 +68,7 @@ const { fetchUserStargazedRepos, parseStargazedList, buildReadmeContent, writeRe
 	 *  Parse and save object
 	 */
 	if (Array.isArray(list)) {
-		await parseStargazedList({ list, unordered });
+		unordered = await generateStargazedList(list);
 	}
 
 	/**
@@ -77,9 +82,7 @@ const { fetchUserStargazedRepos, parseStargazedList, buildReadmeContent, writeRe
 			});
 	}
 
-	/**
-	 *  Generate Language Index
-	 */
+	// Generate Language Index
 	const languages = Object.keys(sort ? ordered : unordered);
 
 	const readmeContent = await buildReadmeContent({
@@ -93,15 +96,13 @@ const { fetchUserStargazedRepos, parseStargazedList, buildReadmeContent, writeRe
 		date: `${new Date().getDate()}--${new Date().getMonth() + 1}--${new Date().getFullYear()}`,
 	});
 
-	/**
-	 *  Write Readme Content locally
-	 */
+	// Write Readme Content locally
 	await writeReadmeContent(readmeContent);
 
 	/**
 	 *  Handles all the repo actions
 	 */
-	if (gitStatus) {
+	if (githubAction) {
 		await handleRepositoryActions({ readmeContent: unescape(readmeContent) });
 	}
 

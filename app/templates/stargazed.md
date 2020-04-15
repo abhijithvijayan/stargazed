@@ -34,8 +34,8 @@
 ## <%= key %>
 |  | Name 	|  Description 	| Author  	|  Stars 	|
 |---	|---	|---	|---	|---	|
-<% value.forEach((item, index) => {													-%>
-| <%= index + 1 -%> |  [<%= item[0] -%>](<%= item[1] -%>) | <%= item[2] -%> | <%= item[3] -%> | <%= item[4] -%> |
+<% value.forEach(({ name, html_url, description, login, stargazers_count }, index) => {													-%>
+| <%= index + 1 -%> |  [<%= name -%>](<%= html_url -%>) | <%= description -%> | <%= login -%> | <%= stargazers_count -%> |
 <% })															-%>
 
 **[⬆ Back to Index](#-contents)**

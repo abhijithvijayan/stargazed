@@ -10,8 +10,8 @@ const path = require('path');
 const ghGot = require('gh-got');
 const unescape = require('lodash.unescape');
 
-const { options } = require('./utils/validate');
 const Spinner = require('./utils/spinner');
+const { options } = require('./utils/validate');
 const { flashError } = require('./utils/message');
 const { readFileAsync, writeFileAsync } = require('./utils/fs');
 
@@ -125,10 +125,12 @@ const fetchUserStargazedRepos = async ({ spinner, list = [], page = 1 }) => {
 };
 
 /**
- *  stargazed repo list parser
+ *  @returns Array of object
  */
-const parseStargazedList = ({ list, unordered }) => {
-	return list.forEach((item) => {
+function generateStargazedList(list) {
+	const unordered = {};
+
+	list.forEach((item) => {
 		let {
 			name,
 			description,
@@ -139,19 +141,27 @@ const parseStargazedList = ({ list, unordered }) => {
 		} = item;
 
 		language = language || 'Others';
-		description = description ? description.htmlEscape() : '';
+		description = description ? description.trim().htmlEscape() : '';
 
 		if (!(language in unordered)) {
 			unordered[language] = [];
 		}
 
-		unordered[language].push([name, html_url, description.trim(), login, stargazers_count]);
+		unordered[language].push({
+			name,
+			html_url,
+			description,
+			login,
+			stargazers_count,
+		});
 	});
-};
+
+	return unordered;
+}
 
 module.exports.htmlEscapeTable = htmlEscapeTable;
 module.exports.getReadmeTemplate = getReadmeTemplate;
-module.exports.parseStargazedList = parseStargazedList;
 module.exports.buildReadmeContent = buildReadmeContent;
 module.exports.writeReadmeContent = writeReadmeContent;
+module.exports.generateStargazedList = generateStargazedList;
 module.exports.fetchUserStargazedRepos = fetchUserStargazedRepos;
