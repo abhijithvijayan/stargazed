@@ -1,17 +1,8 @@
 {
-	"extends": "onepass",
+	"extends": "@abhijithvijayan/eslint-config",
 	"rules": {
-		"no-console": 0,
-		"camelcase": 0,
-		"no-extend-native": 0,
-		"prettier/prettier": [
-			"error",
-			{
-				"trailingComma": "es5",
-				"singleQuote": true,
-				"printWidth": 120,
-				"tabWidth": 4
-			}
-		]
+		"no-console": "off",
+		"no-extend-native": "off",
+		"camelcase": "off"
 	}
 }
