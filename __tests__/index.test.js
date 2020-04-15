@@ -5,10 +5,10 @@ import stargazed, {
 	getReadmeTemplate,
 	buildReadmeContent,
 	// writeReadmeContent,
-} from '../app/stargazed';
-import { validate } from '../app/utils/validate';
-// import { flashError } from '../app/utils/message';
-import { buildWorkflowContent } from '../app/utils/repo';
+} from '../source/stargazed';
+import { validate } from '../source/utils/validate';
+// import { flashError } from '../source/utils/message';
+import { buildWorkflowContent } from '../source/utils/repo';
 
 import {
 	inputContent,

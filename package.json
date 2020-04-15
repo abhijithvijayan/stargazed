@@ -9,9 +9,9 @@
 		"email": "34790378+abhijithvijayan@users.noreply.github.com",
 		"url": "https://abhijithvijayan.in"
 	},
-	"bin": "./app/index.js",
+	"bin": "./source/index.js",
 	"files": [
-		"/app"
+		"/source"
 	],
 	"engines": {
 		"node": ">=10.0.0"

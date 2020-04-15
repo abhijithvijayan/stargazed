@@ -2,5 +2,5 @@
 	"files.associations": {
 		"**/templates/*": "plaintext"
 	},
-	"markdownlint.ignore": ["app/templates/*.md"]
+	"markdownlint.ignore": ["source/templates/*.md"]
 }
