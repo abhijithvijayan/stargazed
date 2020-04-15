@@ -105,13 +105,16 @@ const {
 	 *  Handles all the repo actions
 	 */
 	if (githubAction) {
-		await handleRepositoryActions({ readmeContent: unescape(readmeContent) });
+		await handleRepositoryActions({
+			readmeContent: unescape(readmeContent),
+			options,
+		});
 	}
 
 	/**
 	 *  Setup GitHub Actions for Daily AutoUpdate
 	 */
 	if (cronJob) {
-		await setUpWorkflow();
+		await setUpWorkflow(options);
 	}
 })();

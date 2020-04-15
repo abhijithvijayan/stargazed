@@ -3,18 +3,182 @@ const chalk = require('chalk');
 const ghGot = require('gh-got');
 
 const Spinner = require('./spinner');
-const { options } = require('./validate');
 const pkg = require('../../package.json');
 const { readFileAsync } = require('./fs');
 const { flashError } = require('./message');
 const { EMPTY_REPO_MESSAGE, SHA_NOT_SUPPLIED_ERROR } = require('./constants');
 
 /**
+ *  Read the workflow sample file
+ */
+const getWorkflowTemplate = async () => {
+	const spinner = new Spinner('Loading sample workflow file');
+	spinner.start();
+
+	try {
+		const sample = await readFileAsync(path.resolve(__dirname, '../templates', './workflow.yml'), 'utf8');
+
+		spinner.succeed('workflow.yml loaded');
+
+		return sample;
+	} catch (err) {
+		spinner.fail('workflow.yml loading failed!');
+		flashError(err);
+	} finally {
+		spinner.stop();
+	}
+};
+
+/**
+ *  Build the workflow.yml content
+ */
+const buildWorkflowContent = async (username, repo) => {
+	// Read workflow.yml
+	let workflow = await getWorkflowTemplate();
+
+	// Replace with user-defined values
+	const mapObj = {
+		'{{USERNAME}}': username,
+		'{{REPO}}': repo,
+	};
+
+	workflow = workflow.replace(/{{USERNAME}}|{{REPO}}/gi, function (matched) {
+		return `"${mapObj[matched]}"`;
+	});
+
+	return workflow;
+};
+
+/**
+ *  Handle setting up GitHub actions workflow
+ */
+const setUpWorkflow = async ({ username, repo, token = '' }) => {
+	const spinner = new Spinner('Setting up cron job for GitHub Actions...');
+	spinner.start();
+
+	const workflowContent = await buildWorkflowContent(username, repo);
+
+	// String to base64
+	const workflowBuffer = await Buffer.from(workflowContent, 'utf8').toString('base64');
+
+	// Create .github/workflows/workflow.yml file
+	try {
+		// Create README.md
+		await ghGot(`/repos/${username}/${repo}/contents/.github/workflows/workflow.yml`, {
+			method: 'PUT',
+			token,
+			body: {
+				message: 'Set up GitHub workflow for daily auto-update',
+				content: workflowBuffer,
+			},
+		});
+
+		spinner.succeed('Setup GitHub Actions workflow success');
+	} catch (err) {
+		if (err.body) {
+			// GitHub returns this error if file already exist
+			if (err.body.message === SHA_NOT_SUPPLIED_ERROR) {
+				spinner.info(chalk('GitHub workflow already setup for the repo!'));
+			} else {
+				spinner.fail(chalk(err.body.message));
+			}
+		}
+	} finally {
+		spinner.stop();
+	}
+};
+
+/**
+ *  Create a new README.md file in repository
+ */
+const uploadReadmeToRepository = async ({ username, repo, token, message, contentBuffer }) => {
+	const spinner = new Spinner('Uploading README file...');
+	spinner.start();
+
+	try {
+		await ghGot(`/repos/${username}/${repo}/contents/README.md`, {
+			method: 'PUT',
+			token,
+			body: {
+				message: message || 'initial commit from stargazed',
+				content: contentBuffer,
+			},
+		});
+
+		spinner.succeed('README file uploaded successfully');
+	} catch (err) {
+		if (err.body) {
+			spinner.fail(chalk(err.body.message));
+		}
+	}
+
+	spinner.stop();
+};
+
+/**
+ *  Create a upstream repository with metadata
+ */
+const createRepository = async (repo, token) => {
+	const spinner = new Spinner('Creating new repository...');
+	spinner.start();
+
+	const repoDetails = {
+		name: repo,
+		description: 'A curated list of my GitHub stars by stargazed',
+		homepage: 'https://github.com/abhijithvijayan/stargazed',
+		private: false,
+		has_projects: false,
+		has_issues: false,
+		has_wiki: false,
+	};
+
+	try {
+		await ghGot('/user/repos', {
+			method: 'POST',
+			token,
+			body: { ...repoDetails },
+		});
+
+		spinner.succeed(`Repository '${repo}' created successfully`);
+	} catch (err) {
+		spinner.info(chalk(err.body && err.body.message));
+	} finally {
+		spinner.stop();
+	}
+};
+
+/**
+ *  Update upstream README.md
+ */
+const updateRepositoryReadme = async ({ username, repo, token, message, contentBuffer, sha }) => {
+	const spinner = new Spinner('Updating repository...');
+	spinner.start();
+
+	try {
+		await ghGot(`/repos/${username}/${repo}/contents/README.md`, {
+			method: 'PUT',
+			token,
+			body: {
+				message: message || `update stars by stargazed ${pkg.version}`,
+				content: contentBuffer,
+				sha,
+			},
+		});
+
+		spinner.succeed('Update to repository successful!');
+	} catch (err) {
+		if (err.body) {
+			spinner.fail(chalk(err.body.message));
+		}
+	} finally {
+		spinner.stop();
+	}
+};
+
+/**
  *  Function to find if repo is empty / readme exists
  */
-const checkIfReadmeExist = async () => {
-	const { username, repo, token = '' } = options;
-
+const checkIfReadmeExist = async ({ username, repo, token }) => {
 	const spinner = new Spinner(`Checking if repository '${repo}' exists...`);
 	spinner.start();
 
@@ -51,100 +215,7 @@ const checkIfReadmeExist = async () => {
 	return { sha, repoExists, isRepoEmpty };
 };
 
-/**
- *  Update upstream README.md
- */
-const updateRepositoryReadme = async ({ contentBuffer, sha }) => {
-	const { username, repo, token = '', message } = options;
-
-	const spinner = new Spinner('Updating repository...');
-	spinner.start();
-
-	try {
-		await ghGot(`/repos/${username}/${repo}/contents/README.md`, {
-			method: 'PUT',
-			token,
-			body: {
-				message: message || `update stars by stargazed ${pkg.version}`,
-				content: contentBuffer,
-				sha,
-			},
-		});
-
-		spinner.succeed('Update to repository successful!');
-	} catch (err) {
-		if (err.body) {
-			spinner.fail(chalk(err.body.message));
-		}
-	} finally {
-		spinner.stop();
-	}
-};
-
-/**
- *  Create a upstream repository with metadata
- */
-const createRepository = async () => {
-	const { repo, token = '' } = options;
-
-	const spinner = new Spinner('Creating new repository...');
-	spinner.start();
-
-	const repoDetails = {
-		name: repo,
-		description: 'A curated list of my GitHub stars by stargazed',
-		homepage: 'https://github.com/abhijithvijayan/stargazed',
-		private: false,
-		has_projects: false,
-		has_issues: false,
-		has_wiki: false,
-	};
-
-	try {
-		await ghGot('/user/repos', {
-			method: 'POST',
-			token,
-			body: { ...repoDetails },
-		});
-
-		spinner.succeed(`Repository '${repo}' created successfully`);
-	} catch (err) {
-		spinner.info(chalk(err.body && err.body.message));
-	} finally {
-		spinner.stop();
-	}
-};
-
-/**
- *  Create a new README.md file in repository
- */
-const uploadReadmeToRepository = async ({ contentBuffer }) => {
-	const { username, repo, token, message } = options;
-
-	const spinner = new Spinner('Uploading README file...');
-	spinner.start();
-
-	try {
-		await ghGot(`/repos/${username}/${repo}/contents/README.md`, {
-			method: 'PUT',
-			token,
-			body: {
-				message: message || 'initial commit from stargazed',
-				content: contentBuffer,
-			},
-		});
-
-		spinner.succeed('README file uploaded successfully');
-	} catch (err) {
-		if (err.body) {
-			spinner.fail(chalk(err.body.message));
-		}
-	}
-
-	spinner.stop();
-};
-
-const handleRepositoryActions = async ({ readmeContent }) => {
+const handleRepositoryActions = async ({ readmeContent, options }) => {
 	const { username, repo, token = '', message } = options;
 
 	const { sha, repoExists, isRepoEmpty } = await checkIfReadmeExist({
@@ -165,7 +236,7 @@ const handleRepositoryActions = async ({ readmeContent }) => {
 		 *  Create new Repository
 		 */
 		if (!repoExists) {
-			await createRepository({ repo, token });
+			await createRepository(repo, token);
 		}
 
 		/**
@@ -175,96 +246,12 @@ const handleRepositoryActions = async ({ readmeContent }) => {
 	}
 };
 
-/**
- *  Read the workflow sample file
- */
-const getWorkflowTemplate = async () => {
-	const spinner = new Spinner('Loading sample workflow file');
-	spinner.start();
-
-	try {
-		const sample = await readFileAsync(path.resolve(__dirname, '../templates', './workflow.yml'), 'utf8');
-
-		spinner.succeed('workflow.yml loaded');
-
-		return sample;
-	} catch (err) {
-		spinner.fail('workflow.yml loading failed!');
-		flashError(err);
-	} finally {
-		spinner.stop();
-	}
-};
-
-/**
- *  Build the workflow.yml content
- */
-const buildWorkflowContent = async () => {
-	const { username, repo } = options;
-
-	// Read workflow.yml
-	let workflow = await getWorkflowTemplate();
-
-	// Replace with user-defined values
-	const mapObj = {
-		'{{USERNAME}}': username,
-		'{{REPO}}': repo,
-	};
-
-	workflow = workflow.replace(/{{USERNAME}}|{{REPO}}/gi, function (matched) {
-		return `"${mapObj[matched]}"`;
-	});
-
-	return workflow;
-};
-
-/**
- *  Handle setting up GitHub actions workflow
- */
-const setUpWorkflow = async () => {
-	const { username, repo, token = '' } = options;
-
-	const spinner = new Spinner('Setting up cron job for GitHub Actions...');
-	spinner.start();
-
-	const workflowContent = await buildWorkflowContent(username, repo);
-
-	// String to base64
-	const workflowBuffer = await Buffer.from(workflowContent, 'utf8').toString('base64');
-
-	// Create .github/workflows/workflow.yml file
-	try {
-		// Create README.md
-		await ghGot(`/repos/${username}/${repo}/contents/.github/workflows/workflow.yml`, {
-			method: 'PUT',
-			token,
-			body: {
-				message: 'Set up GitHub workflow for daily auto-update',
-				content: workflowBuffer,
-			},
-		});
-
-		spinner.succeed('Setup GitHub Actions workflow success');
-	} catch (err) {
-		if (err.body) {
-			// GitHub returns this error if file already exist
-			if (err.body.message === SHA_NOT_SUPPLIED_ERROR) {
-				spinner.info(chalk('GitHub workflow already setup for the repo!'));
-			} else {
-				spinner.fail(chalk(err.body.message));
-			}
-		}
-	} finally {
-		spinner.stop();
-	}
-};
-
 module.exports = {
-	checkIfReadmeExist,
-	updateRepositoryReadme,
-	createRepository,
-	uploadReadmeToRepository,
-	handleRepositoryActions,
-	buildWorkflowContent,
 	setUpWorkflow,
+	createRepository,
+	checkIfReadmeExist,
+	buildWorkflowContent,
+	updateRepositoryReadme,
+	handleRepositoryActions,
+	uploadReadmeToRepository,
 };
