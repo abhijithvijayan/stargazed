@@ -1,7 +1,7 @@
 const meow = require('meow');
 
 const cli = meow(
-	`
+  `
 		Usage
 		  $ stargazed [OPTIONS]
 
@@ -19,38 +19,38 @@ const cli = meow(
 			$ stargazed -u "abhijithvijayan" -r "awesome-stars" -t "GITHUB-TOKEN" -s -w
     	$ stargazed -u "abhijithvijayan" -r "REPO_NAME" -t "GITHUB_TOKEN" -m "COMMIT_MESSAGE" -s
 	`,
-	{
-		flags: {
-			version: {
-				type: 'boolean',
-				alias: 'v',
-			},
-			sort: {
-				type: 'boolean',
-				alias: 's',
-			},
-			workflow: {
-				type: 'boolean',
-				alias: ['w', 'a', 'action'],
-			},
-			username: {
-				type: 'string',
-				alias: ['u', 'user'],
-			},
-			token: {
-				type: 'string',
-				alias: 't',
-			},
-			repo: {
-				type: 'string',
-				alias: ['r', 'repository'],
-			},
-			message: {
-				type: 'string',
-				alias: 'm',
-			},
-		},
-	}
+  {
+    flags: {
+      version: {
+        type: 'boolean',
+        alias: 'v',
+      },
+      sort: {
+        type: 'boolean',
+        alias: 's',
+      },
+      workflow: {
+        type: 'boolean',
+        alias: ['w', 'a', 'action'],
+      },
+      username: {
+        type: 'string',
+        alias: ['u', 'user'],
+      },
+      token: {
+        type: 'string',
+        alias: 't',
+      },
+      repo: {
+        type: 'string',
+        alias: ['r', 'repository'],
+      },
+      message: {
+        type: 'string',
+        alias: 'm',
+      },
+    },
+  }
 );
 
 module.exports = cli;

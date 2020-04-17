@@ -54,7 +54,7 @@
 		"validate.io-string-primitive": "^1.0.1"
 	},
 	"devDependencies": {
-		"@abhijithvijayan/eslint-config": "0.14.1",
+		"@abhijithvijayan/eslint-config": "^1.3.0",
 		"@babel/core": "^7.9.0",
 		"@babel/preset-env": "^7.9.0",
 		"@testing-library/jest-dom": "^4.2.4",
