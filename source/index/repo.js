@@ -2,11 +2,14 @@ const path = require('path');
 const chalk = require('chalk');
 const ghGot = require('gh-got');
 
-const Spinner = require('./spinner');
+const Spinner = require('../shared/spinner');
 const pkg = require('../../package.json');
-const {readFileAsync} = require('./fs');
-const {flashError} = require('./message');
-const {EMPTY_REPO_MESSAGE, SHA_NOT_SUPPLIED_ERROR} = require('./constants');
+const {readFileAsync} = require('./shared/fs');
+const {flashError} = require('../shared/message');
+const {
+  EMPTY_REPO_MESSAGE,
+  SHA_NOT_SUPPLIED_ERROR,
+} = require('./repo/constants');
 
 // Read the workflow sample file
 async function getWorkflowTemplate() {

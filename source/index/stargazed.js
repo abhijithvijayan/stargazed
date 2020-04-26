@@ -3,9 +3,9 @@ const path = require('path');
 const ghGot = require('gh-got');
 const unescape = require('lodash.unescape');
 
-const Spinner = require('./utils/spinner');
-const {flashError} = require('./utils/message');
-const {readFileAsync, writeFileAsync} = require('./utils/fs');
+const Spinner = require('../shared/spinner');
+const {flashError} = require('../shared/message');
+const {readFileAsync, writeFileAsync} = require('./shared/fs');
 
 // Escape symbol table
 const htmlEscapeTable = {
@@ -50,7 +50,7 @@ async function getReadmeTemplate() {
 
   try {
     const template = await readFileAsync(
-      path.resolve(__dirname, 'templates', './stargazed.md'),
+      path.resolve(__dirname, '../templates', './stargazed.md'),
       'utf8'
     );
 

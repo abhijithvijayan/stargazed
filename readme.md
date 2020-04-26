@@ -1,4 +1,4 @@
-# stargazed [![npm version](https://img.shields.io/npm/v/stargazed)](https://www.npmjs.com/package/stargazed) [![Build Status](https://travis-ci.com/abhijithvijayan/stargazed.svg?branch=master)](https://travis-ci.com/abhijithvijayan/stargazed)
+# stargazed [![npm version](https://img.shields.io/npm/v/stargazed)](https://www.npmjs.com/package/stargazed) [![Build Status](https://travis-ci.com/abhijithvijayan/stargazed.svg?branch=master)](https://travis-ci.com/abhijithvijayan/stargazed) [![file structure: destiny](https://img.shields.io/badge/file%20structure-destiny-7a49ff?style=flat)](https://github.com/benawad/destiny)
 
 > Creating your own Awesome List of GitHub Stars!
 <h3>🙋‍♂️ Made by <a href="https://twitter.com/_abhijithv">@abhijithvijayan</a></h3>
@@ -19,7 +19,7 @@
 Ensure you have [Node.js](https://nodejs.org) 10 or later installed. Then run the following:
 
 ```
-$ npx stargazed --help
+npx stargazed --help
 ```
 
 ## Usage
@@ -53,7 +53,7 @@ $ stargazed --help
 
 Goto [Personal access tokens](https://github.com/settings/tokens)
 
-### Why do I need a token?
+### Why do I need a token
 
 - For unauthenticated requests, the rate limit is 60 requests per
   hour.
@@ -61,7 +61,7 @@ Goto [Personal access tokens](https://github.com/settings/tokens)
 - The token must be passed together when you want to automatically
   create the repository.
 
-### How can I automate the process after initial run?
+### How can I automate the process after initial run
 
 ##### 1. Sign up for GitHub actions beta
 
@@ -69,10 +69,10 @@ Goto [Personal access tokens](https://github.com/settings/tokens)
 https://github.com/features/actions
 ```
 
-#### 2. Use `-w, --workflow` flag to set up GitHub workflow that updates the repo at 00:30 everyday.
+#### 2. Use `-w, --workflow` flag to set up GitHub workflow that updates the repo at 00:30 everyday
 
 ```
-$ stargazed -u "abhijithvijayan" -r "awesome-stars" -t "GITHUB-TOKEN" -s -w
+stargazed -u "abhijithvijayan" -r "awesome-stars" -t "GITHUB-TOKEN" -s -w
 ```
 
 ## Contributing

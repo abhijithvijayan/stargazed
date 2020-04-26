@@ -7,17 +7,17 @@
  *  @license  MIT License
  */
 
-const cli = require('./cli');
-const Spinner = require('./utils/spinner');
-const {flashError} = require('./utils/message');
-const {options, validate} = require('./utils/validate');
-const {handleRepositoryActions, setUpWorkflow} = require('./utils/repo');
+const cli = require('./index/cli');
+const Spinner = require('./shared/spinner');
+const {flashError} = require('./shared/message');
+const {options, validate} = require('./index/validate');
+const {handleRepositoryActions, setUpWorkflow} = require('./index/repo');
 const {
   writeReadmeContent,
   buildReadmeContent,
   generateStargazedList,
   fetchUserStargazedRepos,
-} = require('./stargazed');
+} = require('./index/stargazed');
 
 (async () => {
   const err = validate(cli.flags);
