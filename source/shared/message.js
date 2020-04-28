@@ -1,10 +1,11 @@
 const chalk = require('chalk');
+require('unicorn.log');
 
 /**
  *  Display Validation Errors
  */
 function flashError(message) {
-  console.error(chalk.bold.red(`✖ ${message}`));
+  console.unicorn(chalk.bold.red(`✖ ${message}`));
   process.exit(1);
 }
 
