@@ -45,11 +45,11 @@
 		"@types/jest": "^24.9.0",
 		"chalk": "^3.0.0",
 		"ejs": "^2.7.4",
+		"emoji-log": "^1.0.2",
 		"gh-got": "^8.1.0",
 		"lodash.unescape": "^4.0.1",
 		"meow": "^5.0.0",
 		"ora": "^4.0.3",
-		"unicorn.log": "^1.7.0",
 		"validate.io-boolean-primitive": "^1.0.0",
 		"validate.io-object": "^1.0.4",
 		"validate.io-string-primitive": "^1.0.1"

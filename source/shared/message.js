@@ -1,11 +1,11 @@
 const chalk = require('chalk');
-require('unicorn.log');
+require('emoji-log');
 
 /**
  *  Display Validation Errors
  */
 function flashError(message) {
-  console.unicorn(chalk.bold.red(`✖ ${message}`));
+  console.emoji('🦄', chalk.bold.red(`✖ ${message}`));
   process.exit(1);
 }
 
