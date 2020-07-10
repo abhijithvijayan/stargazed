@@ -52,7 +52,7 @@ const {
 
   // Trim whitespaces
   if (typeof String.prototype.trim === 'undefined') {
-    String.prototype.trim = function () {
+    String.prototype.trim = () => {
       return String(this).replace(/^\s+|\s+$/g, '');
     };
   }
@@ -81,7 +81,7 @@ const {
   if (sort) {
     Object.keys(unordered)
       .sort()
-      .forEach(function (key) {
+      .forEach((key) => {
         ordered[key] = unordered[key];
       });
   }

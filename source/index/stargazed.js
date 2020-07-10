@@ -16,7 +16,7 @@ const htmlEscapeTable = {
 };
 
 // Replace special characters with escape code
-String.prototype.htmlEscape = function () {
+String.prototype.htmlEscape = () => {
   let escStr = this;
 
   Object.entries(htmlEscapeTable).map(([key, value]) => {

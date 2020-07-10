@@ -44,7 +44,7 @@ async function buildWorkflowContent(username, repo) {
     '{{REPO}}': repo,
   };
 
-  workflow = workflow.replace(/{{USERNAME}}|{{REPO}}/gi, function (matched) {
+  workflow = workflow.replace(/{{USERNAME}}|{{REPO}}/gi, (matched) => {
     return `"${mapObj[matched]}"`;
   });
 
