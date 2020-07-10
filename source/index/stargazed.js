@@ -16,7 +16,8 @@ const htmlEscapeTable = {
 };
 
 // Replace special characters with escape code
-String.prototype.htmlEscape = () => {
+// eslint-disable-next-line func-names
+String.prototype.htmlEscape = function () {
   let escStr = this;
 
   Object.entries(htmlEscapeTable).map(([key, value]) => {

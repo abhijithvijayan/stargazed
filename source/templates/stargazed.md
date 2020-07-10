@@ -27,7 +27,7 @@
 <% 		language = `${language}-${i}`;										-%>
 <% 	}														-%>
 <% 	languages.push(language);											-%>
-- [<%= item.replace(/\s/g, "&nbsp;") %> (<%= stargazed[item].length %>)](#<%= language %>)
+- [<%= item.replace(/\s/g, " ") %> (<%= stargazed[item].length %>)](#<%= language %>)
 <% }); 															-%>
 <% Object.entries(stargazed).forEach(([key, value]) => {									-%>
 
