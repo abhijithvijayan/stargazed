@@ -1,8 +1,20 @@
 {
-	"extends": "@abhijithvijayan/eslint-config",
+	"extends": [
+		"@abhijithvijayan/eslint-config",
+		"@abhijithvijayan/eslint-config/node"
+	],
+	"parserOptions": {
+		"sourceType": "module"
+	},
 	"rules": {
+		"camelcase": "off",
+		"consistent-return": "warn",
+		"node/shebang": "off",
+		"node/no-unsupported-features/es-syntax": ["error", {
+			"ignores": ["modules"]
+		}],
 		"no-console": "off",
 		"no-extend-native": "off",
-		"camelcase": "off"
+		"no-process-exit": "off"
 	}
 }
