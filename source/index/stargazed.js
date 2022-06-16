@@ -90,7 +90,7 @@ function generateStargazedList(list) {
       stargazers_count,
     } = item;
 
-    let login = item.owner ? item.owner.login: item.full_name.replace(`${item.name}/`, ''); 
+    const login = item.owner ? item.owner.login : item.full_name.replace(`${item.name}/`, ''); 
     language = language || 'Others';
     description = description ? description.trim().htmlEscape() : '';
 
